@@ -2,7 +2,7 @@
  * @name RXJXTQuestDashboard
  * @author RXJXT
  * @description Native Discord Toolbar UI, Custom Logo & Auto-Grind Engine.
- * @version 7.5.0
+ * @version 7.5.1
  * @updateUrl https://raw.githubusercontent.com/rxjxt-1/RXJXT-Quest-Tool/refs/heads/main/RXJXT.plugin.js
  */
 
@@ -17,12 +17,12 @@ module.exports = class RXJXTQuestDashboard {
         // ==========================================
         // RXJXT CONFIGURATION
         // ==========================================
-        const CURRENT_VERSION = "7.5.0";
+        const CURRENT_VERSION = "7.5.1";
         const UPDATE_URL = "https://raw.githubusercontent.com/rxjxt-1/RXJXT-Quest-Tool/refs/heads/main/RXJXT.plugin.js";
-        const SERVER_INVITE_LINK = "https://discord.gg/DDPmSywBcV";
         
-        // 👇 APNE RED 'CHOBBER' LOGO KA LINK YAHAN DAALO 👇
-        const CUSTOM_LOGO_URL = "https://cdn.discordapp.com/attachments/1354865979145978109/1510550883493216267/IMG_3521.gif?ex=6a3cdda3&is=6a3b8c23&hm=612caa324ddb615d70f1f83ef4fb2c6aeef8ef8a30013daaedffa0745d66286d&"; 
+        // Tumhara Server Link aur Logo
+        const SERVER_INVITE_LINK = "https://discord.gg/DDPmSywBcV";
+        const CUSTOM_LOGO_URL = "https://cdn.discordapp.com/attachments/1354865979145978109/1432999976543322202/b3e66a70-76a7-455b-8c40-6fccf7dc6193_1.png?ex=6a3cddba&is=6a3b8c3a&hm=d8474058ce1fa9b246f66919c6b90e8371236e70ed09ed4e54ba4a8e5a9b0438&"; 
 
         const rxjxtLog = (msg, type = "info") => {
             const colors = { info: "#00f3ff", success: "#fcee0a", warn: "#ff9d00", error: "#ff003c", brand: "#ff003c", finish: "#43b581" };
@@ -171,7 +171,6 @@ module.exports = class RXJXTQuestDashboard {
                 btn.setAttribute('aria-label', 'RXJXT Dashboard (Double-Click: Open Server)');
                 btn.style.cssText = 'display: flex; align-items: center; justify-content: center; cursor: pointer; margin: 0 8px; width: 24px; height: 24px; position: relative;';
                 
-                // Using Custom Image Logo
                 btn.innerHTML = `
                     <div id="rxjxt-header-ring" style="--rxjxt-prog: 0%;">
                         <div id="rxjxt-header-inner">
@@ -180,7 +179,6 @@ module.exports = class RXJXTQuestDashboard {
                     </div>
                 `;
                 
-                // Double Click / Single Click Timer Logic
                 let clickTimer = null;
                 
                 btn.onclick = (e) => {
@@ -193,9 +191,19 @@ module.exports = class RXJXTQuestDashboard {
                 };
 
                 btn.ondblclick = (e) => {
-                    // DOUBLE CLICK: Open Server Link
                     clearTimeout(clickTimer);
-                    window.open(SERVER_INVITE_LINK, '_blank');
+                    
+                    // NATIVE DISCORD SERVER NAVIGATION FIX
+                    // Extracts the invite code (DDPmSywBcV) and tells Discord to handle it natively.
+                    const inviteCode = SERVER_INVITE_LINK.replace(/\/$/, '').split('/').pop();
+                    
+                    try {
+                        // Option A: Use Electron Shell Native Link (Works 100% inside app)
+                        require('electron').shell.openExternal('discord://-/invite/' + inviteCode);
+                    } catch (err) {
+                        // Option B: Fallback internal location routing
+                        window.location.href = 'discord://-/invite/' + inviteCode;
+                    }
                 };
 
                 toolbar.insertBefore(btn, toolbar.firstChild);
