@@ -2,7 +2,8 @@
  * @name RXJXTQuestDashboard
  * @author RXJXT
  * @description Liquid Glass UI & Auto-Grind Engine for Discord Quests.
- * @version 7.2.0
+ * @version 7.3.0
+ * @updateUrl https://github.com/rxjxt-1/RXJXT-Quest-Tool/edit/main/RXJXT.plugin.js
  */
 
 module.exports = class RXJXTQuestDashboard {
@@ -12,6 +13,13 @@ module.exports = class RXJXTQuestDashboard {
 
         console.clear();
         const sleep = ms => new Promise(res => setTimeout(res, ms));
+
+        // ==========================================
+        // RXJXT OTA UPDATER CONFIG
+        // ==========================================
+        const CURRENT_VERSION = "7.3.0";
+        // YAHAN APNA GITHUB 'RAW' LINK DAALO 👇
+        const UPDATE_URL = "https://github.com/rxjxt-1/RXJXT-Quest-Tool/edit/main/RXJXT.plugin.js";
 
         const rxjxtLog = (msg, type = "info") => {
             const colors = { info: "#00f3ff", success: "#fcee0a", warn: "#ff9d00", error: "#ff003c", brand: "#ff003c", finish: "#43b581" };
@@ -36,17 +44,18 @@ module.exports = class RXJXTQuestDashboard {
                 @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Share+Tech+Mono&display=swap');
                 
                 #rxjxt-liquid-ui { position: fixed; top: 40px; right: 40px; z-index: 9999999; font-family: 'Share Tech Mono', monospace; color: #fff; }
-                
                 #rxjxt-main-dash { width: 380px; background: rgba(10, 15, 20, 0.45); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid rgba(0, 243, 255, 0.4); box-shadow: 0 8px 32px 0 rgba(0, 243, 255, 0.2), inset 0 0 20px rgba(0,0,0,0.8); border-radius: 12px; overflow: hidden; transition: opacity 0.3s ease, transform 0.3s ease; position: relative; }
                 #rxjxt-main-dash::before { content: ""; position: absolute; top:0; left:0; width:100%; height:100%; background: repeating-linear-gradient(transparent, transparent 2px, rgba(0, 243, 255, 0.03) 3px); pointer-events: none; z-index: 0; }
                 
-                /* FIX 1: Header Z-index increased to 20 so it stays above the popup */
                 .rxjxt-header { background: linear-gradient(90deg, rgba(255,0,60,0.8) 0%, rgba(0,0,0,0.2) 100%); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(252, 238, 10, 0.5); cursor: grab; position: relative; z-index: 20; }
                 .rxjxt-brand-name { font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: 2px; text-shadow: 0 0 10px #ff003c; animation: glitch 3s infinite; pointer-events: none; }
                 .rxjxt-controls { display: flex; gap: 15px; }
                 .rxjxt-btn-icon { color: #00f3ff; cursor: pointer; font-weight: bold; transition: 0.2s; text-shadow: 0 0 5px #00f3ff; font-size: 16px; }
                 .rxjxt-btn-icon:hover { color: #fff; text-shadow: 0 0 15px #fff; transform: scale(1.2); }
                 
+                #rxjxt-update-btn { display: none; color: #fcee0a; text-shadow: 0 0 10px #ff9d00; animation: pulse-mini 1s infinite; font-size: 18px; margin-right: 5px; }
+                #rxjxt-update-btn:hover { color: #fff; text-shadow: 0 0 20px #00f3ff; transform: scale(1.3); }
+
                 .rxjxt-body { padding: 20px; position: relative; z-index: 3; }
                 .rxjxt-status-box { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 11px; }
                 #rxjxt-live-status { color: #fcee0a; font-weight: bold; text-shadow: 0 0 5px #fcee0a; }
@@ -57,12 +66,10 @@ module.exports = class RXJXTQuestDashboard {
                 .rxjxt-progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #00f3ff, #fcee0a); box-shadow: 0 0 15px #fcee0a; transition: width 0.3s ease; position: relative; }
                 .rxjxt-terminal-container { background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255,0,60,0.3); border-left: 2px solid #ff003c; border-radius: 4px; padding: 10px; height: 110px; overflow-y: auto; font-size: 11px; }
                 
-                /* FIX 2: Minimized Dashboard with Circular Progress Ring */
                 #rxjxt-mini-dash { width: 56px; height: 56px; border-radius: 50%; background: conic-gradient(#00f3ff var(--rxjxt-prog, 0%), rgba(255,0,60,0.15) 0); display: flex; justify-content: center; align-items: center; cursor: grab; display: none; position: relative; z-index: 9999999; box-shadow: 0 0 15px rgba(0, 243, 255, 0.3); animation: pulse-mini 2s infinite; }
                 #rxjxt-mini-dash:active { cursor: grabbing; }
                 #rxjxt-mini-text { width: 48px; height: 48px; background: rgba(10, 15, 20, 0.95); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-family: 'Rajdhani', sans-serif; font-weight: bold; font-size: 13px; color: #fff; text-shadow: 0 0 5px #fff; pointer-events: none; }
                 
-                /* Popup Adjusted (Padding top added to avoid header overlap) */
                 #rxjxt-popup { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 10; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 50px 20px 20px 20px; box-sizing: border-box; }
                 .rxjxt-popup-title { color: #ff003c; font-size: 18px; font-weight: bold; margin-bottom: 10px; text-shadow: 0 0 10px #ff003c; }
                 .rxjxt-popup-text { color: #aaa; font-size: 12px; margin-bottom: 20px; }
@@ -84,8 +91,9 @@ module.exports = class RXJXTQuestDashboard {
                             <button class="rxjxt-action-btn" id="rxjxt-popup-btn">RETRY ENGINE</button>
                         </div>
                         <div class="rxjxt-header" id="rxjxt-drag-handle">
-                            <div class="rxjxt-brand-name">RXJXT TOOL v7.2</div>
+                            <div class="rxjxt-brand-name">RXJXT TOOL v${CURRENT_VERSION}</div>
                             <div class="rxjxt-controls">
+                                <span class="rxjxt-btn-icon" id="rxjxt-update-btn" title="Cloud Update Available!">☁️</span>
                                 <span class="rxjxt-btn-icon" id="rxjxt-min-btn" title="Minimize">_</span>
                                 <span class="rxjxt-btn-icon" id="rxjxt-close-btn" title="Close">✕</span>
                             </div>
@@ -126,8 +134,32 @@ module.exports = class RXJXTQuestDashboard {
                 document.getElementById('rxjxt-main-dash').style.display = 'block';
             };
             document.getElementById('rxjxt-close-btn').onclick = () => {
-                this.stop(); // Clean exit
+                this.stop(); 
             };
+
+            // CHECK FOR GITHUB UPDATES
+            fetch(UPDATE_URL).then(res => res.text()).then(code => {
+                const match = code.match(/@version\s+([0-9.]+)/);
+                if(match && match[1] !== CURRENT_VERSION) {
+                    rxjxtLog(`UPDATE AVAILABLE: v${match[1]} DETECTED ON GITHUB!`, "warn");
+                    const updateBtn = document.getElementById('rxjxt-update-btn');
+                    updateBtn.style.display = 'inline-block';
+                    
+                    updateBtn.onclick = () => {
+                        rxjxtLog(`DOWNLOADING UPDATE v${match[1]}...`, "info");
+                        const fs = require('fs');
+                        const path = require('path');
+                        try {
+                            const pluginFile = path.join(BdApi.Plugins.folder, "RXJXT.plugin.js");
+                            fs.writeFileSync(pluginFile, code);
+                            BdApi.UI.showToast(`RXJXT Tool Updated to v${match[1]}! Reloading...`, {type: "success"});
+                            setTimeout(() => location.reload(), 2000);
+                        } catch(e) {
+                            rxjxtLog("UPDATE FAILED. PLEASE UPDATE MANUALLY.", "error");
+                        }
+                    };
+                }
+            }).catch(err => { rxjxtLog("COULD NOT CONNECT TO GITHUB FOR UPDATES.", "warn"); });
         };
 
         let currentSecondsLeft = 0;
@@ -143,7 +175,6 @@ module.exports = class RXJXTQuestDashboard {
             const statusEl = document.getElementById('rxjxt-live-status');
             if(statusEl) statusEl.innerText = status;
 
-            // Update Mini Circular Progress Bar
             const miniDash = document.getElementById('rxjxt-mini-dash');
             if (miniDash) {
                 miniDash.style.setProperty('--rxjxt-prog', `${pct}%`);
