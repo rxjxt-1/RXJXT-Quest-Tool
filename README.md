@@ -15,15 +15,18 @@
 ## 🚀 About The Tool
 **RXJXT Quest Dashboard** is a powerful, lightweight BetterDiscord plugin designed to automate and track Discord Quests directly from your client. No more manual grinding—just accept the quest, and let the engine do the work while you monitor progress through a sleek, native Dropdown UI.
 
-
-<img width="607" height="591" alt="Screenshot 2026-06-24 181926" src="https://github.com/user-attachments/assets/872aa36f-b55e-4b54-bcb0-b8cf4a7c6eb7" />
-<img width="1079" height="785" alt="Screenshot 2026-06-24 181914" src="https://github.com/user-attachments/assets/f7901ad8-9ca5-4447-8c5d-7946f115d9ee" />
-<img width="2943" height="1438" alt="Screenshot 2026-06-24 182451" src="https://github.com/user-attachments/assets/7aee736f-174d-42ea-9921-8a27b93e21bb" />
-<img width="1175" height="1276" alt="Screenshot 2026-06-24 182439" src="https://github.com/user-attachments/assets/ee9fe06b-c7c5-475a-9222-9d54e3665b4c" />
-<img width="1910" height="846" alt="Screenshot 2026-06-24 182019" src="https://github.com/user-attachments/assets/98f25dc0-70ee-41ef-870f-8cda4c8cf20c" />
-
-
-
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/872aa36f-b55e-4b54-bcb0-b8cf4a7c6eb7" width="600" />
+</div>
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/7aee736f-174d-42ea-9921-8a27b93e21bb" width="600" />
+</div>
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/ba5f3d65-208c-4436-ac4c-524d00e7329c" width="600" />
+</div>
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/98f25dc0-70ee-41ef-870f-8cda4c8cf20c" width="600" />
+</div>
 
 ## ✨ Features
 * 💧 **Liquid Glass UI:** A beautiful, draggable dropdown dashboard with smooth animations.
