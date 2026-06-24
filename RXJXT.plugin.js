@@ -3,7 +3,7 @@
  * @author RXJXT
  * @description Native Discord Toolbar UI & Auto-Grind Engine for Quests.
  * @version 7.4.0
- * @updateUrl https://github.com/rxjxt-1/RXJXT-Quest-Tool/edit/main/RXJXT.plugin.js
+ * @updateUrl https://raw.githubusercontent.com/rxjxt-1/RXJXT-Quest-Tool/refs/heads/main/RXJXT.plugin.js
  */
 
 module.exports = class RXJXTQuestDashboard {
@@ -20,7 +20,7 @@ module.exports = class RXJXTQuestDashboard {
         const CURRENT_VERSION = "7.4.0";
         
         // YAHAN APNA GITHUB 'RAW' LINK DAALO 👇
-        const UPDATE_URL = "https://github.com/rxjxt-1/RXJXT-Quest-Tool/edit/main/RXJXT.plugin.js";
+        const UPDATE_URL = "https://raw.githubusercontent.com/rxjxt-1/RXJXT-Quest-Tool/refs/heads/main/RXJXT.plugin.js";
 
         const rxjxtLog = (msg, type = "info") => {
             const colors = { info: "#00f3ff", success: "#fcee0a", warn: "#ff9d00", error: "#ff003c", brand: "#ff003c", finish: "#43b581" };
