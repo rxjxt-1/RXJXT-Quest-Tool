@@ -1,10 +1,11 @@
 <div align="center">
   <img src="https://cdn3.emoji.gg/emojis/30647-completed-quest.png" alt="RXJXT Logo" width="120"/>
 
-  <h1>RXJXT Quest Dashboard Plugin</h1>
+  <h1>Quest Dashboard Plugin</h1>
   <p><strong>The Ultimate Auto-Grind Engine & Native UI for Discord Quests</strong></p>
 
   ![Version](https://img.shields.io/badge/Version-8.0.0-ff0000?style=for-the-badge)
+  [![RXJXT Profile](https://img.shields.io/badge/Developer-RXJXT-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discordapp.com/users/1262670730865283076)
   ![BetterDiscord](https://img.shields.io/badge/BetterDiscord-Ready-fcee0a?style=for-the-badge&logo=discord)
   ![License](https://img.shields.io/badge/License-GPL_3.0-43b581?style=for-the-badge)
 </div>
