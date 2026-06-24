@@ -1,8 +1,8 @@
 /**
  * @name RXJXTQuestDashboard
  * @author RXJXT
- * @description Liquid Glass UI & Auto-Grind Engine for Discord Quests.
- * @version 7.3.0
+ * @description Native Discord Toolbar UI & Auto-Grind Engine for Quests.
+ * @version 7.4.0
  * @updateUrl https://github.com/rxjxt-1/RXJXT-Quest-Tool/edit/main/RXJXT.plugin.js
  */
 
@@ -17,7 +17,8 @@ module.exports = class RXJXTQuestDashboard {
         // ==========================================
         // RXJXT OTA UPDATER CONFIG
         // ==========================================
-        const CURRENT_VERSION = "7.3.0";
+        const CURRENT_VERSION = "7.4.0";
+        
         // YAHAN APNA GITHUB 'RAW' LINK DAALO 👇
         const UPDATE_URL = "https://github.com/rxjxt-1/RXJXT-Quest-Tool/edit/main/RXJXT.plugin.js";
 
@@ -43,7 +44,7 @@ module.exports = class RXJXTQuestDashboard {
             style.innerHTML = `
                 @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Share+Tech+Mono&display=swap');
                 
-                #rxjxt-liquid-ui { position: fixed; top: 40px; right: 40px; z-index: 9999999; font-family: 'Share Tech Mono', monospace; color: #fff; }
+                #rxjxt-liquid-ui { position: fixed; top: 60px; right: 40px; z-index: 9999999; font-family: 'Share Tech Mono', monospace; color: #fff; }
                 #rxjxt-main-dash { width: 380px; background: rgba(10, 15, 20, 0.45); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid rgba(0, 243, 255, 0.4); box-shadow: 0 8px 32px 0 rgba(0, 243, 255, 0.2), inset 0 0 20px rgba(0,0,0,0.8); border-radius: 12px; overflow: hidden; transition: opacity 0.3s ease, transform 0.3s ease; position: relative; }
                 #rxjxt-main-dash::before { content: ""; position: absolute; top:0; left:0; width:100%; height:100%; background: repeating-linear-gradient(transparent, transparent 2px, rgba(0, 243, 255, 0.03) 3px); pointer-events: none; z-index: 0; }
                 
@@ -66,9 +67,10 @@ module.exports = class RXJXTQuestDashboard {
                 .rxjxt-progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #00f3ff, #fcee0a); box-shadow: 0 0 15px #fcee0a; transition: width 0.3s ease; position: relative; }
                 .rxjxt-terminal-container { background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255,0,60,0.3); border-left: 2px solid #ff003c; border-radius: 4px; padding: 10px; height: 110px; overflow-y: auto; font-size: 11px; }
                 
-                #rxjxt-mini-dash { width: 56px; height: 56px; border-radius: 50%; background: conic-gradient(#00f3ff var(--rxjxt-prog, 0%), rgba(255,0,60,0.15) 0); display: flex; justify-content: center; align-items: center; cursor: grab; display: none; position: relative; z-index: 9999999; box-shadow: 0 0 15px rgba(0, 243, 255, 0.3); animation: pulse-mini 2s infinite; }
-                #rxjxt-mini-dash:active { cursor: grabbing; }
-                #rxjxt-mini-text { width: 48px; height: 48px; background: rgba(10, 15, 20, 0.95); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-family: 'Rajdhani', sans-serif; font-weight: bold; font-size: 13px; color: #fff; text-shadow: 0 0 5px #fff; pointer-events: none; }
+                /* NATIVE TOOLBAR ICON STYLES */
+                #rxjxt-header-ring { width: 24px; height: 24px; border-radius: 50%; background: conic-gradient(#00f3ff var(--rxjxt-prog, 0%), rgba(255,0,60,0.15) 0); display: flex; justify-content: center; align-items: center; box-shadow: 0 0 8px rgba(0, 243, 255, 0.3); transition: background 0.3s ease; animation: pulse-mini-ring 2s infinite; }
+                #rxjxt-header-inner { width: 18px; height: 18px; background: #2b2d31; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-family: 'Rajdhani', sans-serif; font-weight: bold; font-size: 12px; color: #fff; transition: color 0.3s ease; }
+                #rxjxt-header-btn:hover #rxjxt-header-ring { box-shadow: 0 0 15px rgba(0, 243, 255, 0.8); }
                 
                 #rxjxt-popup { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 10; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 50px 20px 20px 20px; box-sizing: border-box; }
                 .rxjxt-popup-title { color: #ff003c; font-size: 18px; font-weight: bold; margin-bottom: 10px; text-shadow: 0 0 10px #ff003c; }
@@ -76,14 +78,14 @@ module.exports = class RXJXTQuestDashboard {
                 .rxjxt-action-btn { background: rgba(0, 243, 255, 0.1); border: 1px solid #00f3ff; color: #00f3ff; padding: 8px 20px; font-family: inherit; font-weight: bold; cursor: pointer; transition: 0.3s; box-shadow: 0 0 10px rgba(0, 243, 255, 0.2); }
                 .rxjxt-action-btn:hover { background: #00f3ff; color: #000; box-shadow: 0 0 20px #00f3ff; }
                 
-                @keyframes pulse-mini { 0%, 100% { box-shadow: 0 0 10px rgba(255,0,60,0.5); } 50% { box-shadow: 0 0 25px rgba(0,243,255,0.6); } }
+                @keyframes pulse-mini { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+                @keyframes pulse-mini-ring { 0%, 100% { box-shadow: 0 0 5px rgba(255,0,60,0.4); } 50% { box-shadow: 0 0 12px rgba(0,243,255,0.6); } }
                 @keyframes glitch { 0%, 100% { transform: translate(0); } 20% { transform: translate(-1px, 1px); } 40% { transform: translate(1px, -1px); } }
             `;
             document.head.appendChild(style);
 
             document.body.insertAdjacentHTML('beforeend', `
                 <div id="rxjxt-liquid-ui">
-                    <div id="rxjxt-mini-dash"><div id="rxjxt-mini-text">QUEST</div></div>
                     <div id="rxjxt-main-dash">
                         <div id="rxjxt-popup">
                             <div class="rxjxt-popup-title" id="rxjxt-popup-title">WARNING</div>
@@ -94,7 +96,7 @@ module.exports = class RXJXTQuestDashboard {
                             <div class="rxjxt-brand-name">RXJXT TOOL v${CURRENT_VERSION}</div>
                             <div class="rxjxt-controls">
                                 <span class="rxjxt-btn-icon" id="rxjxt-update-btn" title="Cloud Update Available!">☁️</span>
-                                <span class="rxjxt-btn-icon" id="rxjxt-min-btn" title="Minimize">_</span>
+                                <span class="rxjxt-btn-icon" id="rxjxt-min-btn" title="Minimize to Toolbar">_</span>
                                 <span class="rxjxt-btn-icon" id="rxjxt-close-btn" title="Close">✕</span>
                             </div>
                         </div>
@@ -123,15 +125,9 @@ module.exports = class RXJXTQuestDashboard {
 
             const uiWrapper = document.getElementById('rxjxt-liquid-ui');
             makeDraggable(uiWrapper, document.getElementById('rxjxt-drag-handle'));
-            makeDraggable(uiWrapper, document.getElementById('rxjxt-mini-dash'));
 
             document.getElementById('rxjxt-min-btn').onclick = () => {
                 document.getElementById('rxjxt-main-dash').style.display = 'none';
-                document.getElementById('rxjxt-mini-dash').style.display = 'flex';
-            };
-            document.getElementById('rxjxt-mini-dash').ondblclick = () => { 
-                document.getElementById('rxjxt-mini-dash').style.display = 'none';
-                document.getElementById('rxjxt-main-dash').style.display = 'block';
             };
             document.getElementById('rxjxt-close-btn').onclick = () => {
                 this.stop(); 
@@ -162,6 +158,38 @@ module.exports = class RXJXTQuestDashboard {
             }).catch(err => { rxjxtLog("COULD NOT CONNECT TO GITHUB FOR UPDATES.", "warn"); });
         };
 
+        // NATIVE DISCORD TOOLBAR INJECTOR
+        const ensureToolbarIcon = () => {
+            if (!window.rxjxtEngineRunning) return;
+            let btn = document.getElementById('rxjxt-header-btn');
+            // Target Discord's native header toolbar
+            const toolbar = document.querySelector('section [class*="toolbar_"]');
+
+            if (toolbar && !btn) {
+                btn = document.createElement('div');
+                btn.id = 'rxjxt-header-btn';
+                btn.setAttribute('aria-label', 'RXJXT Dashboard');
+                btn.style.cssText = 'display: flex; align-items: center; justify-content: center; cursor: pointer; margin: 0 8px; width: 24px; height: 24px; position: relative;';
+                
+                btn.innerHTML = `
+                    <div id="rxjxt-header-ring" style="--rxjxt-prog: 0%;">
+                        <div id="rxjxt-header-inner">Q</div>
+                    </div>
+                `;
+                
+                btn.onclick = () => {
+                    const mainDash = document.getElementById('rxjxt-main-dash');
+                    if(mainDash) mainDash.style.display = mainDash.style.display === 'none' ? 'block' : 'none';
+                };
+
+                // Insert at the beginning of the toolbar
+                toolbar.insertBefore(btn, toolbar.firstChild);
+            }
+        };
+
+        // Run interval to ensure icon stays even if user changes servers/channels
+        window.rxjxtToolbarInterval = setInterval(ensureToolbarIcon, 1500);
+
         let currentSecondsLeft = 0;
         const updateUI = (questName, current, total, status = "progress") => {
             if(!document.getElementById('rxjxt-pct')) return;
@@ -175,13 +203,19 @@ module.exports = class RXJXTQuestDashboard {
             const statusEl = document.getElementById('rxjxt-live-status');
             if(statusEl) statusEl.innerText = status;
 
-            const miniDash = document.getElementById('rxjxt-mini-dash');
-            if (miniDash) {
-                miniDash.style.setProperty('--rxjxt-prog', `${pct}%`);
+            // UPDATE NATIVE HEADER ICON RING
+            const headerRing = document.getElementById('rxjxt-header-ring');
+            const headerInner = document.getElementById('rxjxt-header-inner');
+            if (headerRing && headerInner) {
+                headerRing.style.setProperty('--rxjxt-prog', `${pct}%`);
                 if(pct >= 100) {
-                    miniDash.style.background = `conic-gradient(#fcee0a var(--rxjxt-prog, 0%), rgba(255,0,60,0.15) 0)`;
+                    headerRing.style.background = `conic-gradient(#fcee0a var(--rxjxt-prog, 0%), rgba(255,0,60,0.15) 0)`;
+                    headerInner.style.color = '#fcee0a';
+                    headerInner.innerText = '✔';
                 } else {
-                    miniDash.style.background = `conic-gradient(#00f3ff var(--rxjxt-prog, 0%), rgba(255,0,60,0.15) 0)`;
+                    headerRing.style.background = `conic-gradient(#00f3ff var(--rxjxt-prog, 0%), rgba(255,0,60,0.15) 0)`;
+                    headerInner.style.color = '#fff';
+                    headerInner.innerText = 'Q';
                 }
             }
         };
@@ -213,7 +247,7 @@ module.exports = class RXJXTQuestDashboard {
         }, 1000);
 
         injectLiquidUI();
-        rxjxtLog("RXJXT BD PLUGIN MOUNTED...", "brand");
+        rxjxtLog("RXJXT NATIVE BD PLUGIN MOUNTED...", "brand");
 
         let isGrinding = false;
 
@@ -392,11 +426,15 @@ module.exports = class RXJXTQuestDashboard {
     stop() {
         if (window.rxjxtTimer) clearInterval(window.rxjxtTimer);
         if (window.questWatcher) clearInterval(window.questWatcher);
+        if (window.rxjxtToolbarInterval) clearInterval(window.rxjxtToolbarInterval);
         window.rxjxtEngineRunning = false;
         
         const ui = document.getElementById('rxjxt-liquid-ui');
         if (ui) ui.remove();
         
+        const headerBtn = document.getElementById('rxjxt-header-btn');
+        if (headerBtn) headerBtn.remove();
+
         const style = document.getElementById('rxjxt-styles');
         if (style) style.remove();
         
