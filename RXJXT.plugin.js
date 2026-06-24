@@ -1,8 +1,8 @@
 /**
  * @name RXJXTQuestDashboard
  * @author RXJXT
- * @description Smooth Dropdown UI, Custom Logo, Fail-Proof Server Jump & Auto-Grind.
- * @version 7.6.3
+ * @description Smooth Dropdown UI, Custom Logo, Ultimate Server Jump & Auto-Grind.
+ * @version 7.6.4
  * @updateUrl https://raw.githubusercontent.com/rxjxt-1/RXJXT-Quest-Tool/refs/heads/main/RXJXT.plugin.js
  */
 
@@ -17,15 +17,15 @@ module.exports = class RXJXTQuestDashboard {
         // ==========================================
         // RXJXT CONFIGURATION (YAHAN CHANGES KARO)
         // ==========================================
-        const CURRENT_VERSION = "7.6.3";
+        const CURRENT_VERSION = "7.6.4";
         const UPDATE_URL = "https://raw.githubusercontent.com/rxjxt-1/RXJXT-Quest-Tool/refs/heads/main/RXJXT.plugin.js";
         
-        // APNA LOGO LINK YAHAN DAALO 👇
         const CUSTOM_LOGO_URL = "https://cdn.discordapp.com/attachments/1354865979145978109/1432999976543322202/b3e66a70-76a7-455b-8c40-6fccf7dc6193_1.png?ex=6a3cddba&is=6a3b8c3a&hm=d8474058ce1fa9b246f66919c6b90e8371236e70ed09ed4e54ba4a8e5a9b0438&"; 
         
         // DIRECT SHORTCUT KE LIYE APNI IDS DAALO 👇
         const SERVER_ID = "1301844105604890624"; // <--- Apna Server ID yahan daalo!
         const CHANNEL_ID = ""; // Isko khali ("") chhod do
+        const INVITE_CODE = "DDPmSywBcV"; // Failsafe Invite Jump
 
         const rxjxtLog = (msg, type = "info") => {
             const colors = { info: "#00f3ff", success: "#fcee0a", warn: "#ff9d00", error: "#ff003c", brand: "#ff003c", finish: "#43b581" };
@@ -145,7 +145,7 @@ module.exports = class RXJXTQuestDashboard {
             document.getElementById('rxjxt-close-btn').onclick = () => {
                 const dash = document.getElementById('rxjxt-main-dash');
                 if(dash) dash.classList.remove('rxjxt-open');
-                rxjxtLog("DASHBOARD HIDDEN. ENGINE STILL RUNNING. CLICK ICON TO OPEN.", "warn");
+                rxjxtLog("DASHBOARD HIDDEN. ENGINE STILL RUNNING.", "warn");
             };
 
             // CHECK FOR GITHUB UPDATES
@@ -192,7 +192,6 @@ module.exports = class RXJXTQuestDashboard {
                     </div>
                 `;
                 
-                // FAIL-PROOF CUSTOM CLICK HANDLER
                 let clickCount = 0;
                 let clickTimer = null;
                 
@@ -203,8 +202,7 @@ module.exports = class RXJXTQuestDashboard {
                     
                     if (clickCount === 1) {
                         clickTimer = setTimeout(() => {
-                            clickCount = 0; // Reset
-                            // SINGLE CLICK ACTION: Toggle Dashboard
+                            clickCount = 0; 
                             const mainDash = document.getElementById('rxjxt-main-dash');
                             if(mainDash) {
                                 if (mainDash.classList.contains('rxjxt-open')) {
@@ -216,36 +214,55 @@ module.exports = class RXJXTQuestDashboard {
                         }, 250); 
                     } else if (clickCount === 2) {
                         clearTimeout(clickTimer);
-                        clickCount = 0; // Reset
+                        clickCount = 0; 
                         
-                        // DOUBLE CLICK ACTION: Server Jump
                         if (!SERVER_ID || SERVER_ID === "123456789012345678") {
-                            BdApi.UI.showToast("Bhai, Code mein apna asli Server ID daalo!", {type: "error", timeout: 5000});
+                            BdApi.UI.showToast("Code mein apna asli Server ID daalo pehle!", {type: "error"});
                             return;
                         }
 
-                        rxjxtLog("INITIATING DIRECT SERVER JUMP...", "brand");
                         BdApi.UI.showToast("Jumping to Server...", {type: "success"});
-
                         let targetRoute = CHANNEL_ID && CHANNEL_ID.trim() !== "" ? `/channels/${SERVER_ID}/${CHANNEL_ID}` : `/channels/${SERVER_ID}`;
-                        
+                        let success = false;
+
+                        // LAYER 1: Dynamic Route Transition
                         try {
-                            // Method 1: React Router (Super Smooth)
-                            const Router = BdApi.Webpack.getModule(BdApi.Webpack.Filters.byProps("transitionTo"));
-                            if (Router && Router.transitionTo) {
-                                Router.transitionTo(targetRoute);
-                                return;
-                            }
-                            
-                            // Method 2: Guild Actions (Select Server directly)
-                            const GuildActions = BdApi.Webpack.getModule(BdApi.Webpack.Filters.byProps("selectGuild"));
-                            if (GuildActions && GuildActions.selectGuild) {
-                                GuildActions.selectGuild(SERVER_ID);
-                                return;
-                            }
-                        } catch (err) {
-                            rxjxtLog("Navigation error. Update BetterDiscord.", "error");
+                            const Router = BdApi.Webpack.getModule(m => m?.transitionTo || m?.default?.transitionTo);
+                            const transition = Router?.transitionTo || Router?.default?.transitionTo;
+                            if (transition) { transition(targetRoute); success = true; }
+                        } catch(err) {}
+
+                        // LAYER 2: Guild Selection
+                        if (!success) {
+                            try {
+                                const GuildActions = BdApi.Webpack.getModule(m => m?.selectGuild || m?.default?.selectGuild);
+                                const select = GuildActions?.selectGuild || GuildActions?.default?.selectGuild;
+                                if (select) { select(SERVER_ID); success = true; }
+                            } catch(err) {}
+                        }
+
+                        // LAYER 3: Raw Webpack Fallback
+                        if (!success) {
+                            try {
+                                let wpRequire = window.webpackChunkdiscord_app.push([[Symbol()], {}, r => r]);
+                                window.webpackChunkdiscord_app.pop();
+                                let tTo = Object.values(wpRequire.c).find(x => x?.exports?.Z?.transitionTo)?.exports?.Z?.transitionTo || Object.values(wpRequire.c).find(x => x?.exports?.transitionTo)?.exports?.transitionTo;
+                                if (tTo) { tTo(targetRoute); success = true; }
+                            } catch(err) {}
+                        }
+
+                        // LAYER 4: Invite Code Jump (The Ultimate Failsafe)
+                        if (!success) {
+                            try {
+                                const InviteActions = BdApi.Webpack.getModule(m => m?.acceptInviteAndTransitionToInviteChannel || m?.default?.acceptInviteAndTransitionToInviteChannel);
+                                const transitionInvite = InviteActions?.acceptInviteAndTransitionToInviteChannel || InviteActions?.default?.acceptInviteAndTransitionToInviteChannel;
+                                if (transitionInvite) { transitionInvite(INVITE_CODE); success = true; }
+                            } catch(err) {}
+                        }
+
+                        if (!success) {
                             BdApi.UI.showToast("Server shortcut failed.", {type: "error"});
+                            rxjxtLog("Navigation error.", "error");
                         }
                     }
                 };
