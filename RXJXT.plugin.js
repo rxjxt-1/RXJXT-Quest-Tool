@@ -1,8 +1,8 @@
 /**
  * @name RXJXTQuestDashboard
  * @author RXJXT
- * @description Native Discord Toolbar UI & Auto-Grind Engine for Quests.
- * @version 7.4.0
+ * @description Native Discord Toolbar UI, Custom Logo & Auto-Grind Engine.
+ * @version 7.5.0
  * @updateUrl https://raw.githubusercontent.com/rxjxt-1/RXJXT-Quest-Tool/refs/heads/main/RXJXT.plugin.js
  */
 
@@ -15,12 +15,14 @@ module.exports = class RXJXTQuestDashboard {
         const sleep = ms => new Promise(res => setTimeout(res, ms));
 
         // ==========================================
-        // RXJXT OTA UPDATER CONFIG
+        // RXJXT CONFIGURATION
         // ==========================================
-        const CURRENT_VERSION = "7.4.0";
-        
-        // YAHAN APNA GITHUB 'RAW' LINK DAALO 👇
+        const CURRENT_VERSION = "7.5.0";
         const UPDATE_URL = "https://raw.githubusercontent.com/rxjxt-1/RXJXT-Quest-Tool/refs/heads/main/RXJXT.plugin.js";
+        const SERVER_INVITE_LINK = "https://discord.gg/DDPmSywBcV";
+        
+        // 👇 APNE RED 'CHOBBER' LOGO KA LINK YAHAN DAALO 👇
+        const CUSTOM_LOGO_URL = "https://cdn.discordapp.com/attachments/1354865979145978109/1510550883493216267/IMG_3521.gif?ex=6a3cdda3&is=6a3b8c23&hm=612caa324ddb615d70f1f83ef4fb2c6aeef8ef8a30013daaedffa0745d66286d&"; 
 
         const rxjxtLog = (msg, type = "info") => {
             const colors = { info: "#00f3ff", success: "#fcee0a", warn: "#ff9d00", error: "#ff003c", brand: "#ff003c", finish: "#43b581" };
@@ -67,9 +69,10 @@ module.exports = class RXJXTQuestDashboard {
                 .rxjxt-progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #00f3ff, #fcee0a); box-shadow: 0 0 15px #fcee0a; transition: width 0.3s ease; position: relative; }
                 .rxjxt-terminal-container { background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255,0,60,0.3); border-left: 2px solid #ff003c; border-radius: 4px; padding: 10px; height: 110px; overflow-y: auto; font-size: 11px; }
                 
-                /* NATIVE TOOLBAR ICON STYLES */
+                /* CUSTOM LOGO STYLES */
                 #rxjxt-header-ring { width: 24px; height: 24px; border-radius: 50%; background: conic-gradient(#00f3ff var(--rxjxt-prog, 0%), rgba(255,0,60,0.15) 0); display: flex; justify-content: center; align-items: center; box-shadow: 0 0 8px rgba(0, 243, 255, 0.3); transition: background 0.3s ease; animation: pulse-mini-ring 2s infinite; }
-                #rxjxt-header-inner { width: 18px; height: 18px; background: #2b2d31; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-family: 'Rajdhani', sans-serif; font-weight: bold; font-size: 12px; color: #fff; transition: color 0.3s ease; }
+                #rxjxt-header-inner { width: 18px; height: 18px; background: #2b2d31; border-radius: 50%; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+                .rxjxt-custom-logo { width: 12px; height: 12px; object-fit: contain; }
                 #rxjxt-header-btn:hover #rxjxt-header-ring { box-shadow: 0 0 15px rgba(0, 243, 255, 0.8); }
                 
                 #rxjxt-popup { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 10; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 50px 20px 20px 20px; box-sizing: border-box; }
@@ -133,7 +136,6 @@ module.exports = class RXJXTQuestDashboard {
                 this.stop(); 
             };
 
-            // CHECK FOR GITHUB UPDATES
             fetch(UPDATE_URL).then(res => res.text()).then(code => {
                 const match = code.match(/@version\s+([0-9.]+)/);
                 if(match && match[1] !== CURRENT_VERSION) {
@@ -158,36 +160,48 @@ module.exports = class RXJXTQuestDashboard {
             }).catch(err => { rxjxtLog("COULD NOT CONNECT TO GITHUB FOR UPDATES.", "warn"); });
         };
 
-        // NATIVE DISCORD TOOLBAR INJECTOR
         const ensureToolbarIcon = () => {
             if (!window.rxjxtEngineRunning) return;
             let btn = document.getElementById('rxjxt-header-btn');
-            // Target Discord's native header toolbar
             const toolbar = document.querySelector('section [class*="toolbar_"]');
 
             if (toolbar && !btn) {
                 btn = document.createElement('div');
                 btn.id = 'rxjxt-header-btn';
-                btn.setAttribute('aria-label', 'RXJXT Dashboard');
+                btn.setAttribute('aria-label', 'RXJXT Dashboard (Double-Click: Open Server)');
                 btn.style.cssText = 'display: flex; align-items: center; justify-content: center; cursor: pointer; margin: 0 8px; width: 24px; height: 24px; position: relative;';
                 
+                // Using Custom Image Logo
                 btn.innerHTML = `
                     <div id="rxjxt-header-ring" style="--rxjxt-prog: 0%;">
-                        <div id="rxjxt-header-inner">Q</div>
+                        <div id="rxjxt-header-inner">
+                            <img src="${CUSTOM_LOGO_URL}" alt="S" class="rxjxt-custom-logo" onerror="this.style.display='none'; this.parentElement.innerText='S';">
+                        </div>
                     </div>
                 `;
                 
-                btn.onclick = () => {
-                    const mainDash = document.getElementById('rxjxt-main-dash');
-                    if(mainDash) mainDash.style.display = mainDash.style.display === 'none' ? 'block' : 'none';
+                // Double Click / Single Click Timer Logic
+                let clickTimer = null;
+                
+                btn.onclick = (e) => {
+                    if(clickTimer) clearTimeout(clickTimer);
+                    clickTimer = setTimeout(() => {
+                        // SINGLE CLICK: Toggle Dashboard
+                        const mainDash = document.getElementById('rxjxt-main-dash');
+                        if(mainDash) mainDash.style.display = mainDash.style.display === 'none' ? 'block' : 'none';
+                    }, 250); 
                 };
 
-                // Insert at the beginning of the toolbar
+                btn.ondblclick = (e) => {
+                    // DOUBLE CLICK: Open Server Link
+                    clearTimeout(clickTimer);
+                    window.open(SERVER_INVITE_LINK, '_blank');
+                };
+
                 toolbar.insertBefore(btn, toolbar.firstChild);
             }
         };
 
-        // Run interval to ensure icon stays even if user changes servers/channels
         window.rxjxtToolbarInterval = setInterval(ensureToolbarIcon, 1500);
 
         let currentSecondsLeft = 0;
@@ -203,19 +217,13 @@ module.exports = class RXJXTQuestDashboard {
             const statusEl = document.getElementById('rxjxt-live-status');
             if(statusEl) statusEl.innerText = status;
 
-            // UPDATE NATIVE HEADER ICON RING
             const headerRing = document.getElementById('rxjxt-header-ring');
-            const headerInner = document.getElementById('rxjxt-header-inner');
-            if (headerRing && headerInner) {
+            if (headerRing) {
                 headerRing.style.setProperty('--rxjxt-prog', `${pct}%`);
                 if(pct >= 100) {
                     headerRing.style.background = `conic-gradient(#fcee0a var(--rxjxt-prog, 0%), rgba(255,0,60,0.15) 0)`;
-                    headerInner.style.color = '#fcee0a';
-                    headerInner.innerText = '✔';
                 } else {
                     headerRing.style.background = `conic-gradient(#00f3ff var(--rxjxt-prog, 0%), rgba(255,0,60,0.15) 0)`;
-                    headerInner.style.color = '#fff';
-                    headerInner.innerText = 'Q';
                 }
             }
         };
