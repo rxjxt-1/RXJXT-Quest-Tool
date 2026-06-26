@@ -1,8 +1,8 @@
 /**
  * @name RXJXTQuestDashboard
  * @author RXJXT
- * @description RXJXT Hub: Quest Grinder + Fake Deafen + Auto Updater
- * @version 9.1.0
+ * @description RXJXT Hub: Quest Grinder + FULLY AUTOMATED Fake Deafen + Auto Updater
+ * @version 9.2.0
  * @updateUrl https://raw.githubusercontent.com/rxjxt-1/RXJXT-Quest-Tool/refs/heads/main/RXJXT.plugin.js
  */
 
@@ -20,7 +20,7 @@ module.exports = class RXJXTQuestDashboard {
         console.clear();
         const sleep = ms => new Promise(res => setTimeout(res, ms));
 
-        const CURRENT_VERSION = "9.1.0";
+        const CURRENT_VERSION = "9.2.0";
         const UPDATE_URL = "https://raw.githubusercontent.com/rxjxt-1/RXJXT-Quest-Tool/refs/heads/main/RXJXT.plugin.js";
         const CUSTOM_LOGO_URL = "https://cdn.discordapp.com/attachments/1354865979145978109/1432999976543322202/b3e66a70-76a7-455b-8c40-6fccf7dc6193_1.png?ex=6a3cddba&is=6a3b8c3a&hm=d8474058ce1fa9b246f66919c6b90e8371236e70ed09ed4e54ba4a8e5a9b0438&"; 
 
@@ -44,6 +44,22 @@ module.exports = class RXJXTQuestDashboard {
                 logBox.appendChild(logEntry);
                 logBox.scrollTop = logBox.scrollHeight;
             }
+        };
+
+        // Utility to fetch Discord's Internal Modules for Automation
+        const getDiscordModule = (props) => {
+            try {
+                let wpRequire = window.webpackChunkdiscord_app.push([[Symbol()], {}, r => r]);
+                window.webpackChunkdiscord_app.pop();
+                for (let key in wpRequire.c) {
+                    let exp = wpRequire.c[key].exports;
+                    if (!exp) continue;
+                    if (props.every(p => exp[p] !== undefined)) return exp;
+                    if (exp.Z && props.every(p => exp.Z[p] !== undefined)) return exp.Z;
+                    if (exp.default && props.every(p => exp.default[p] !== undefined)) return exp.default;
+                }
+            } catch (e) {}
+            return null;
         };
 
         const injectLiquidUI = () => {
@@ -155,7 +171,6 @@ module.exports = class RXJXTQuestDashboard {
             document.body.insertAdjacentHTML('beforeend', `
                 <div id="rxjxt-liquid-ui">
                     
-                    <!-- DROP-DOWN HUB -->
                     <div id="rxjxt-mini-menu">
                         <div class="rxjxt-menu-item" id="rxjxt-menu-quest">
                             <svg viewBox="0 0 24 24" class="quest-icon"><path fill="currentColor" d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4-3c-.83 0-1.5-.67-1.5-1.5S18.67 9 19.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
@@ -165,14 +180,12 @@ module.exports = class RXJXTQuestDashboard {
                             <svg viewBox="0 0 24 24" id="rxjxt-headset-icon" class="headset-off"><path fill="currentColor" d="M12 3a9 9 0 0 0-9 9v7c0 1.1.9 2 2 2h4v-8H5v-1c0-3.87 3.13-7 7-7s7 3.13 7 7v1h-4v8h4c1.1 0 2-.9 2-2v-7a9 9 0 0 0-9-9z"/></svg>
                             <span>Fake Deafen</span>
                         </div>
-                        <!-- UPDATE BUTTON (Hidden by default) -->
                         <div class="rxjxt-menu-item" id="rxjxt-menu-update" style="display: none;">
                             <svg viewBox="0 0 24 24" class="update-icon"><path fill="currentColor" d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.36 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
                             <span id="rxjxt-update-text" style="color: #fcee0a; text-shadow: 0 0 8px rgba(252,238,10,0.5);">Update Found!</span>
                         </div>
                     </div>
 
-                    <!-- QUEST DASHBOARD -->
                     <div id="rxjxt-quest-dash" class="rxjxt-panel theme-stealth">
                         <div id="rxjxt-popup">
                             <div class="rxjxt-popup-title" id="rxjxt-popup-title">WARNING</div>
@@ -183,7 +196,7 @@ module.exports = class RXJXTQuestDashboard {
                             </div>
                         </div>
                         <div class="rxjxt-header">
-                            <div class="rxjxt-brand-name">${_k} QUEST V9</div>
+                            <div class="rxjxt-brand-name">${_k} QUEST V9.2</div>
                             <div class="rxjxt-controls">
                                 <button class="rxjxt-mode-btn" id="rxjxt-mode-btn" title="Toggle Grind Mode">[ STEALTH ]</button>
                                 <label class="rxjxt-toggle" title="Toggle Quest Auto-Grind">
@@ -202,10 +215,9 @@ module.exports = class RXJXTQuestDashboard {
                         </div>
                     </div>
 
-                    <!-- FAKE DEAFEN DASHBOARD -->
                     <div id="rxjxt-deafen-dash" class="rxjxt-panel theme-deafen">
                         <div class="rxjxt-header">
-                            <div class="rxjxt-brand-name">${_k} DEAFEN V9</div>
+                            <div class="rxjxt-brand-name">${_k} DEAFEN V9.2</div>
                             <div class="rxjxt-controls">
                                 <label class="rxjxt-toggle" title="Toggle Fake Deafen">
                                     <input type="checkbox" id="rxjxt-deafen-toggle">
@@ -217,7 +229,7 @@ module.exports = class RXJXTQuestDashboard {
                         <div class="rxjxt-body">
                             <div class="rxjxt-status-box"><div class="rxjxt-live-status" id="rxjxt-deafen-status" style="color: #43b581;">DEAFEN INACTIVE</div></div>
                             <span class="rxjxt-label">Instructions</span>
-                            <div class="rxjxt-value" style="white-space: normal;">1. Connect to any Voice Channel.<br>2. Mute/Deafen yourself normally.<br>3. Turn ON the toggle above.<br>4. You can now hear & speak while appearing deafened to others!</div>
+                            <div class="rxjxt-value" style="white-space: normal;">1. Connect to any Voice Channel.<br>2. Turn ON the toggle above.<br>3. System will automatically sync and fake your status!<br>4. Turn OFF to instantly restore normal connection.</div>
                             <span class="rxjxt-label">Deafen Terminal</span><div class="rxjxt-terminal-container" id="rxjxt-terminal-deafen"></div>
                         </div>
                     </div>
@@ -259,24 +271,89 @@ module.exports = class RXJXTQuestDashboard {
                 rxjxtLog('QUEST', `MODE SWITCHED TO: ${window.rxjxtMode}`, window.rxjxtMode === 'RAGE' ? "brand" : "info");
             };
 
-            // Fake Deafen Toggle Logic
+            // FAKE DEAFEN TOGGLE LOGIC (Fully Automated)
             const deafenInput = document.getElementById('rxjxt-deafen-toggle');
             const headsetIcon = document.getElementById('rxjxt-headset-icon');
             const deafenStatusText = document.getElementById('rxjxt-deafen-status');
 
             deafenInput.addEventListener('change', (e) => {
                 window.rxjxtDeafenToggle = e.target.checked;
+                const AudioActions = getDiscordModule(["toggleSelfDeaf", "toggleSelfMute"]);
+                const MediaEngineStore = getDiscordModule(["isSelfDeaf", "isSelfMute"]);
+
                 if (window.rxjxtDeafenToggle) {
                     headsetIcon.className.baseVal = 'headset-on';
                     deafenStatusText.innerText = "SPOOFING ACTIVE (RED GLOW)";
                     deafenStatusText.style.color = "#ff003c";
-                    rxjxtLog('DEAFEN', "FAKE DEAFEN ENABLED. Intercepting WebSockets...", "success");
-                    enableFakeDeafenHook();
+                    rxjxtLog('DEAFEN', "FAKE DEAFEN ENABLED. Intercepting WebSockets...", "brand");
+                    
+                    // Enable the Hook First
+                    if (!window.rxjxtWSHooked) {
+                        window.rxjxtOriginalWS = window.WebSocket.prototype.send;
+                        window.WebSocket.prototype.send = function(data) {
+                            if (window.rxjxtDeafenToggle) {
+                                try {
+                                    const textDecoder = new TextDecoder("utf-8");
+                                    let isArrayBuffer = Object.prototype.toString.call(data) === "[object ArrayBuffer]";
+                                    
+                                    if (isArrayBuffer || data instanceof Uint8Array) {
+                                        let decoded = textDecoder.decode(data);
+                                        if (decoded.includes("self_deaf")) {
+                                            let modifiedText = decoded.replace('"self_mute":false', 'NiceOneDiscord');
+                                            data = new TextEncoder().encode(modifiedText);
+                                            if (isArrayBuffer) data = data.buffer; 
+                                            rxjxtLog('DEAFEN', "Payload corrupted - Fake Deafen Active!", "success");
+                                        }
+                                    } else if (typeof data === 'string') {
+                                        if (data.includes("self_deaf")) {
+                                            data = data.replace('"self_mute":false', 'NiceOneDiscord');
+                                            rxjxtLog('DEAFEN', "Payload corrupted - Fake Deafen Active!", "success");
+                                        }
+                                    }
+                                } catch (err) { console.error("Fake Deafen Error:", err); }
+                            }
+                            return window.rxjxtOriginalWS.apply(this, arguments);
+                        };
+                        window.rxjxtWSHooked = true;
+                    }
+
+                    // Auto-sync process
+                    if (AudioActions && MediaEngineStore) {
+                        if (!MediaEngineStore.isSelfDeaf()) {
+                            AudioActions.toggleSelfDeaf(); 
+                        }
+                        setTimeout(() => {
+                            if (MediaEngineStore.isSelfDeaf() && window.rxjxtDeafenToggle) {
+                                AudioActions.toggleSelfDeaf(); // Triggers the corrupting hook
+                            }
+                        }, 400);
+                    } else {
+                        rxjxtLog('DEAFEN', "Could not automate. Manual sync required.", "warn");
+                    }
+
                 } else {
                     headsetIcon.className.baseVal = 'headset-off';
                     deafenStatusText.innerText = "DEAFEN INACTIVE (GREEN GLOW)";
                     deafenStatusText.style.color = "#43b581";
-                    rxjxtLog('DEAFEN', "FAKE DEAFEN DISABLED. Connection normal.", "warn");
+                    rxjxtLog('DEAFEN', "Restoring normal WebSocket logic...", "warn");
+
+                    // Disable the Hook
+                    if (window.rxjxtWSHooked && window.rxjxtOriginalWS) {
+                        window.WebSocket.prototype.send = window.rxjxtOriginalWS;
+                        window.rxjxtWSHooked = false;
+                        
+                        // Auto-sync restoration
+                        if (AudioActions && MediaEngineStore) {
+                            if (!MediaEngineStore.isSelfDeaf()) {
+                                AudioActions.toggleSelfDeaf(); 
+                                setTimeout(() => {
+                                    if (MediaEngineStore.isSelfDeaf() && !window.rxjxtDeafenToggle) {
+                                        AudioActions.toggleSelfDeaf(); // Clean restore
+                                    }
+                                }, 400);
+                            }
+                        }
+                    }
                 }
             });
 
@@ -406,36 +483,8 @@ module.exports = class RXJXTQuestDashboard {
             }
         }, 1000);
 
-        // FAKE DEAFEN CORE LOGIC
-        const enableFakeDeafenHook = () => {
-            if (!window.rxjxtWSHooked) {
-                window.rxjxtOriginalWS = window.WebSocket.prototype.send;
-                window.WebSocket.prototype.send = function(data) {
-                    if (window.rxjxtDeafenToggle) {
-                        try {
-                            if (data instanceof ArrayBuffer || data instanceof Uint8Array) {
-                                let textDecoder = new TextDecoder("utf-8");
-                                let decoded = textDecoder.decode(data);
-                                if (decoded.includes("self_deaf")) {
-                                    let modifiedText = decoded.replace('"self_mute":false', 'NiceOneDiscord');
-                                    data = new TextEncoder().encode(modifiedText);
-                                }
-                            } else if (typeof data === 'string') {
-                                if (data.includes("self_deaf")) {
-                                    data = data.replace('"self_mute":false', '"self_mute":true'); 
-                                }
-                            }
-                        } catch (e) { console.error(e); }
-                    }
-                    return window.rxjxtOriginalWS.apply(this, arguments);
-                };
-                window.rxjxtWSHooked = true;
-                rxjxtLog('DEAFEN', "WebSocket Hook Injected Successfully.", "info");
-            }
-        };
-
         injectLiquidUI();
-        rxjxtLog('QUEST', "RXJXT V9.1 CORE ENGINE INITIALIZED...", "brand");
+        rxjxtLog('QUEST', "RXJXT V9.2 CORE ENGINE INITIALIZED...", "brand");
         rxjxtLog('DEAFEN', "SYSTEM READY.", "info");
 
         let isGrinding = false;
@@ -474,7 +523,6 @@ module.exports = class RXJXTQuestDashboard {
                         if (window.rxjxtMode === 'RAGE') {
                             nextQuestToGrind = acceptedQuests.pop();
                         } else {
-                            // STEALTH MODE LOGIC
                             let gameQuests = acceptedQuests.filter(q => {
                                 let tName = supportedTasks.find(x => (q.config.taskConfig ?? q.config.taskConfigV2).tasks[x] != null);
                                 return tName !== "WATCH_VIDEO" && tName !== "WATCH_VIDEO_ON_MOBILE";
@@ -684,6 +732,7 @@ module.exports = class RXJXTQuestDashboard {
         window.rxjxtGrindToggle = false;
         window.rxjxtDeafenToggle = false;
         
+        // Safety hook removal
         if (window.rxjxtWSHooked && window.rxjxtOriginalWS) {
             window.WebSocket.prototype.send = window.rxjxtOriginalWS;
             window.rxjxtWSHooked = false;
