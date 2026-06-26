@@ -1,202 +1,195 @@
 /**
  * @name RXJXT-Quest-Engine
  * @version 1.0.0
- * @description Cloud Module for Quest Grinding
  */
 window.rxjxtQuestEngine = {
-    isGrinding: false,
-    watcher: null,
+    _rxjxtIsGrinding: false,
+    _rxjxtWatcher: null,
     
-    start: async function(log, updateUI, getToggleState, getMode, apiCore) {
+    start: async function(rxjxtLog, rxjxtUpdateUI, rxjxtGetToggle, rxjxtGetMode, rxjxtApiCore) {
+        // RXJXT ANTI-TAMPER CHECK
+        if (!String(this.start).includes("rxjxt") || !window.rxjxtEngineRunning) { window.rxjxtQuestEngine = null; throw new Error("RXJXT_CORRUPTED"); }
+
         try {
-            let wpRequire = window.webpackChunkdiscord_app.push([[Symbol()], {}, r => r]);
+            let rxjxtWp = window.webpackChunkdiscord_app.push([[Symbol()], {}, r => r]);
             window.webpackChunkdiscord_app.pop();
 
-            let ApplicationStreamingStore = Object.values(wpRequire.c).find(x => x?.exports?.A?.__proto__?.getStreamerActiveStreamMetadata)?.exports?.A;
-            let RunningGameStore = Object.values(wpRequire.c).find(x => x?.exports?.Ay?.getRunningGames)?.exports?.Ay;
-            let QuestsStore = Object.values(wpRequire.c).find(x => x?.exports?.A?.__proto__?.getQuest)?.exports?.A;
-            let ChannelStore = Object.values(wpRequire.c).find(x => x?.exports?.A?.__proto__?.getAllThreadsForParent)?.exports?.A;
-            let GuildChannelStore = Object.values(wpRequire.c).find(x => x?.exports?.Ay?.getSFWDefaultChannel)?.exports?.Ay;
-            let FluxDispatcher = Object.values(wpRequire.c).find(x => x?.exports?.h?.__proto__?.flushWaitQueue)?.exports?.h;
-            let api = Object.values(wpRequire.c).find(x => x?.exports?.Bo?.get)?.exports?.Bo;
+            let rxjxtStreamStore = Object.values(rxjxtWp.c).find(x => x?.exports?.A?.__proto__?.getStreamerActiveStreamMetadata)?.exports?.A;
+            let rxjxtGameStore = Object.values(rxjxtWp.c).find(x => x?.exports?.Ay?.getRunningGames)?.exports?.Ay;
+            let rxjxtQuestStore = Object.values(rxjxtWp.c).find(x => x?.exports?.A?.__proto__?.getQuest)?.exports?.A;
+            let rxjxtThreadStore = Object.values(rxjxtWp.c).find(x => x?.exports?.A?.__proto__?.getAllThreadsForParent)?.exports?.A;
+            let rxjxtGuildStore = Object.values(rxjxtWp.c).find(x => x?.exports?.Ay?.getSFWDefaultChannel)?.exports?.Ay;
+            let rxjxtDispatcher = Object.values(rxjxtWp.c).find(x => x?.exports?.h?.__proto__?.flushWaitQueue)?.exports?.h;
+            let rxjxtReq = Object.values(rxjxtWp.c).find(x => x?.exports?.Bo?.get)?.exports?.Bo;
 
-            const supportedTasks = ["WATCH_VIDEO", "PLAY_ON_DESKTOP", "STREAM_ON_DESKTOP", "PLAY_ACTIVITY", "WATCH_VIDEO_ON_MOBILE"];
+            const rxjxtSupported = ["WATCH_VIDEO", "PLAY_ON_DESKTOP", "STREAM_ON_DESKTOP", "PLAY_ACTIVITY", "WATCH_VIDEO_ON_MOBILE"];
 
-            const checkAndStart = () => {
-                if (!getToggleState()) return;
-                if (this.isGrinding) return;
-                if (!QuestsStore) { log('QUEST', "Discord Core Not Ready", "warn"); return; }
+            const rxjxtCheckAndStart = () => {
+                if (!rxjxtGetToggle() || this._rxjxtIsGrinding) return;
+                if (!rxjxtQuestStore) { rxjxtLog('QUEST', "Discord Core Not Ready", "warn"); return; }
 
-                const allQuests = [...QuestsStore.quests.values()].filter(x => new Date(x.config.expiresAt).getTime() > Date.now() && supportedTasks.find(y => Object.keys((x.config.taskConfig ?? x.config.taskConfigV2).tasks).includes(y)));
-                let unacceptedQuests = allQuests.filter(x => !x.userStatus?.enrolledAt && !x.userStatus?.completedAt);
-                let acceptedQuests = allQuests.filter(x => x.userStatus?.enrolledAt && !x.userStatus?.completedAt);
+                const rxjxtAll = [...rxjxtQuestStore.quests.values()].filter(x => new Date(x.config.expiresAt).getTime() > Date.now() && rxjxtSupported.find(y => Object.keys((x.config.taskConfig ?? x.config.taskConfigV2).tasks).includes(y)));
+                let rxjxtUnacc = rxjxtAll.filter(x => !x.userStatus?.enrolledAt && !x.userStatus?.completedAt);
+                let rxjxtAcc = rxjxtAll.filter(x => x.userStatus?.enrolledAt && !x.userStatus?.completedAt);
 
-                if (acceptedQuests.length > 0) {
-                    if (this.watcher) { clearInterval(this.watcher); this.watcher = null; }
-                    apiCore.hidePopup();
+                if (rxjxtAcc.length > 0) {
+                    if (this._rxjxtWatcher) { clearInterval(this._rxjxtWatcher); this._rxjxtWatcher = null; }
+                    rxjxtApiCore.hidePopup();
                     
-                    let nextQuestToGrind = null;
-                    if (getMode() === 'RAGE') {
-                        nextQuestToGrind = acceptedQuests.pop();
-                    } else {
-                        let gameQuests = acceptedQuests.filter(q => {
-                            let tName = supportedTasks.find(x => (q.config.taskConfig ?? q.config.taskConfigV2).tasks[x] != null);
+                    let rxjxtNext = null;
+                    if (rxjxtGetMode() === 'RAGE') { rxjxtNext = rxjxtAcc.pop(); } 
+                    else {
+                        let rxjxtGames = rxjxtAcc.filter(q => {
+                            let tName = rxjxtSupported.find(x => (q.config.taskConfig ?? q.config.taskConfigV2).tasks[x] != null);
                             return tName !== "WATCH_VIDEO" && tName !== "WATCH_VIDEO_ON_MOBILE";
                         });
-                        let videoQuests = acceptedQuests.filter(q => {
-                            let tName = supportedTasks.find(x => (q.config.taskConfig ?? q.config.taskConfigV2).tasks[x] != null);
+                        let rxjxtVids = rxjxtAcc.filter(q => {
+                            let tName = rxjxtSupported.find(x => (q.config.taskConfig ?? q.config.taskConfigV2).tasks[x] != null);
                             return tName === "WATCH_VIDEO" || tName === "WATCH_VIDEO_ON_MOBILE";
                         });
 
-                        if (gameQuests.length > 0) {
-                            nextQuestToGrind = gameQuests.pop();
-                        } else if (videoQuests.length > 0) {
+                        if (rxjxtGames.length > 0) rxjxtNext = rxjxtGames.pop();
+                        else if (rxjxtVids.length > 0) {
                             if (!window.rxjxtVideoApproval) {
-                                updateUI("Paused", 0, 100, "Action");
-                                apiCore.showPopup(
-                                    "Confirm", "Only video quests remain. Auto-grind them?", 
-                                    "Confirm", () => { window.rxjxtVideoApproval = true; checkAndStart(); }, 
-                                    "Cancel", () => { apiCore.disableToggle(); log('QUEST', "Cancelled.", "warn"); updateUI("Idle", 0, 100, "Idle"); }
-                                );
+                                rxjxtUpdateUI("Paused", 0, 100, "Action");
+                                rxjxtApiCore.showPopup("Confirm", "Only video quests remain. Auto-grind them?", "Confirm", () => { window.rxjxtVideoApproval = true; rxjxtCheckAndStart(); }, "Cancel", () => { rxjxtApiCore.disableToggle(); rxjxtLog('QUEST', "Cancelled.", "warn"); rxjxtUpdateUI("Idle", 0, 100, "Idle"); });
                                 return; 
-                            } else { nextQuestToGrind = videoQuests.pop(); }
+                            } else rxjxtNext = rxjxtVids.pop();
                         }
                     }
 
-                    if (nextQuestToGrind) {
-                        this.isGrinding = true;
-                        log('QUEST', `Grinding started.`, "success");
-                        doJob([nextQuestToGrind], api, RunningGameStore, FluxDispatcher, ApplicationStreamingStore, ChannelStore, GuildChannelStore);
+                    if (rxjxtNext) {
+                        this._rxjxtIsGrinding = true; rxjxtLog('QUEST', `Grinding started.`, "success");
+                        rxjxtDoJob([rxjxtNext], rxjxtReq, rxjxtGameStore, rxjxtDispatcher, rxjxtStreamStore, rxjxtThreadStore, rxjxtGuildStore);
                     }
                 } 
-                else if (unacceptedQuests.length > 0) {
-                    updateUI("Action Required", 0, 100, "Idle");
-                    apiCore.showPopup("Info", "Accept quests in Discord first.", "Retry", () => checkAndStart());
-                    if (!this.watcher) this.watcher = setInterval(() => { if (!this.isGrinding && getToggleState()) checkAndStart(); }, 3000);
+                else if (rxjxtUnacc.length > 0) {
+                    rxjxtUpdateUI("Action Required", 0, 100, "Idle");
+                    rxjxtApiCore.showPopup("Info", "Accept quests in Discord first.", "Retry", () => rxjxtCheckAndStart());
+                    if (!this._rxjxtWatcher) this._rxjxtWatcher = setInterval(() => { if (!this._rxjxtIsGrinding && rxjxtGetToggle()) rxjxtCheckAndStart(); }, 3000);
                 } else {
-                    log('QUEST', "No quests found.", "error");
-                    apiCore.showPopup("Status", "All quests completed or unavailable.", "Refresh", () => checkAndStart());
+                    rxjxtLog('QUEST', "No quests found.", "error");
+                    rxjxtApiCore.showPopup("Status", "All quests completed or unavailable.", "Refresh", () => rxjxtCheckAndStart());
                 }
             };
 
-            const doJob = async (questsArray, api, RunningGameStore, FluxDispatcher, ApplicationStreamingStore, ChannelStore, GuildChannelStore) => {
-                const quest = questsArray.pop();
-                if(!quest) { this.isGrinding = false; checkAndStart(); return; }
+            const rxjxtDoJob = async (rxjxtArray, api, GameStore, Dispatcher, StreamStore, ThreadStore, GuildStore) => {
+                const quest = rxjxtArray.pop();
+                if(!quest) { this._rxjxtIsGrinding = false; rxjxtCheckAndStart(); return; }
 
                 const pid = Math.floor(Math.random() * 30000) + 1000;
-                const applicationId = quest.config.application.id;
-                const questName = quest.config.messages.questName;
-                const taskConfig = quest.config.taskConfig ?? quest.config.taskConfigV2;
-                const taskName = supportedTasks.find(x => taskConfig.tasks[x] != null);
-                const secondsNeeded = taskConfig.tasks[taskName].target;
-                let secondsDone = quest.userStatus?.progress?.[taskName]?.value ?? 0;
+                const rxjxtAppId = quest.config.application.id;
+                const rxjxtQName = quest.config.messages.questName;
+                const rxjxtTaskCfg = quest.config.taskConfig ?? quest.config.taskConfigV2;
+                const rxjxtTName = rxjxtSupported.find(x => rxjxtTaskCfg.tasks[x] != null);
+                const rxjxtTarget = rxjxtTaskCfg.tasks[rxjxtTName].target;
+                let rxjxtDone = quest.userStatus?.progress?.[rxjxtTName]?.value ?? 0;
 
-                apiCore.setQuestName(questName);
-                updateUI(questName, secondsDone, secondsNeeded, "Grinding");
+                rxjxtApiCore.setQuestName(rxjxtQName);
+                rxjxtUpdateUI(rxjxtQName, rxjxtDone, rxjxtTarget, "Grinding");
 
-                const finishQuest = async () => {
-                    log('QUEST', `Done: ${questName}`, "finish");
-                    updateUI(questName, secondsNeeded, secondsNeeded, "Complete");
+                const rxjxtFinish = async () => {
+                    rxjxtLog('QUEST', `Done: ${rxjxtQName}`, "finish");
+                    rxjxtUpdateUI(rxjxtQName, rxjxtTarget, rxjxtTarget, "Complete");
                     await new Promise(r => setTimeout(r, 2500)); 
-                    this.isGrinding = false; checkAndStart();
+                    this._rxjxtIsGrinding = false; rxjxtCheckAndStart();
                 };
 
-                if(taskName === "WATCH_VIDEO" || taskName === "WATCH_VIDEO_ON_MOBILE") {
-                    const speed = 7; let completed = false;
+                if(rxjxtTName === "WATCH_VIDEO" || rxjxtTName === "WATCH_VIDEO_ON_MOBILE") {
+                    let rxjxtComp = false;
                     let fn = async () => {
                         while(true) {
-                            if (!getToggleState()) { this.isGrinding = false; return; } 
-                            const remaining = Math.min(speed, secondsNeeded - secondsDone);
-                            await new Promise(resolve => setTimeout(resolve, remaining * 1000));
-                            const timestamp = secondsDone + speed;
-                            const res = await api.post({url: `/quests/${quest.id}/video-progress`, body: {timestamp: Math.min(secondsNeeded, timestamp + Math.random())}});
-                            completed = res.body.completed_at != null;
-                            secondsDone = Math.min(secondsNeeded, timestamp);
-                            updateUI(questName, secondsDone, secondsNeeded, "Grinding");
-                            if(timestamp >= secondsNeeded) break;
+                            if (!rxjxtGetToggle()) { this._rxjxtIsGrinding = false; return; } 
+                            const rem = Math.min(7, rxjxtTarget - rxjxtDone);
+                            await new Promise(r => setTimeout(r, rem * 1000));
+                            const ts = rxjxtDone + 7;
+                            const res = await api.post({url: `/quests/${quest.id}/video-progress`, body: {timestamp: Math.min(rxjxtTarget, ts + Math.random())}});
+                            rxjxtComp = res.body.completed_at != null;
+                            rxjxtDone = Math.min(rxjxtTarget, ts);
+                            rxjxtUpdateUI(rxjxtQName, rxjxtDone, rxjxtTarget, "Grinding");
+                            if(ts >= rxjxtTarget) break;
                         }
-                        if(!completed && getToggleState()) await api.post({url: `/quests/${quest.id}/video-progress`, body: {timestamp: secondsNeeded}});
-                        finishQuest();
+                        if(!rxjxtComp && rxjxtGetToggle()) await api.post({url: `/quests/${quest.id}/video-progress`, body: {timestamp: rxjxtTarget}});
+                        rxjxtFinish();
                     }
                     fn();
-                } else if(taskName === "PLAY_ON_DESKTOP") {
-                    api.get({url: `/applications/public?application_ids=${applicationId}`}).then(res => {
-                        const appData = res.body[0];
-                        const exeName = appData.executables?.find(x => x.os === "win32")?.name?.replace(">","") ?? appData.name.replace(/[\/\\:*?"<>|]/g, "");
-                        const fakeGame = { cmdLine: `C:\\Program Files\\${appData.name}\\${exeName}`, exeName, exePath: `c:/program files/${appData.name.toLowerCase()}/${exeName}`, hidden: false, isLauncher: false, id: applicationId, name: appData.name, pid, pidPath: [pid], processName: appData.name, start: Date.now() };
+                } else if(rxjxtTName === "PLAY_ON_DESKTOP") {
+                    api.get({url: `/applications/public?application_ids=${rxjxtAppId}`}).then(res => {
+                        const app = res.body[0];
+                        const exe = app.executables?.find(x => x.os === "win32")?.name?.replace(">","") ?? app.name.replace(/[\/\\:*?"<>|]/g, "");
+                        const fake = { cmdLine: `C:\\Program Files\\${app.name}\\${exe}`, exeName: exe, exePath: `c:/program files/${app.name.toLowerCase()}/${exe}`, hidden: false, isLauncher: false, id: rxjxtAppId, name: app.name, pid: pid, pidPath: [pid], processName: app.name, start: Date.now() };
 
-                        const realGames = RunningGameStore.getRunningGames(); const fakeGames = [fakeGame];
-                        const realGetRunningGames = RunningGameStore.getRunningGames; const realGetGameForPID = RunningGameStore.getGameForPID;
+                        const realG = GameStore.getRunningGames(); 
+                        const realFn1 = GameStore.getRunningGames; const realFn2 = GameStore.getGameForPID;
                         
-                        RunningGameStore.getRunningGames = () => fakeGames; RunningGameStore.getGameForPID = p => fakeGames.find(x => x.pid === p);
-                        FluxDispatcher.dispatch({type: "RUNNING_GAMES_CHANGE", removed: realGames, added: [fakeGame], games: fakeGames});
+                        GameStore.getRunningGames = () => [fake]; GameStore.getGameForPID = p => [fake].find(x => x.pid === p);
+                        Dispatcher.dispatch({type: "RUNNING_GAMES_CHANGE", removed: realG, added: [fake], games: [fake]});
 
                         let fn = data => {
-                            if (!getToggleState()) { 
-                                FluxDispatcher.unsubscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn);
-                                RunningGameStore.getRunningGames = realGetRunningGames; RunningGameStore.getGameForPID = realGetGameForPID;
-                                FluxDispatcher.dispatch({type: "RUNNING_GAMES_CHANGE", removed: [fakeGame], added: [], games: []});
-                                this.isGrinding = false; return;
+                            if (!rxjxtGetToggle()) { 
+                                Dispatcher.unsubscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn);
+                                GameStore.getRunningGames = realFn1; GameStore.getGameForPID = realFn2;
+                                Dispatcher.dispatch({type: "RUNNING_GAMES_CHANGE", removed: [fake], added: [], games: []});
+                                this._rxjxtIsGrinding = false; return;
                             }
-                            let progress = quest.config.configVersion === 1 ? data.userStatus.streamProgressSeconds : Math.floor(data.userStatus.progress.PLAY_ON_DESKTOP.value);
-                            updateUI(questName, progress, secondsNeeded, "Grinding");
-                            if(progress >= secondsNeeded) {
-                                RunningGameStore.getRunningGames = realGetRunningGames; RunningGameStore.getGameForPID = realGetGameForPID;
-                                FluxDispatcher.dispatch({type: "RUNNING_GAMES_CHANGE", removed: [fakeGame], added: [], games: []});
-                                FluxDispatcher.unsubscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn);
-                                finishQuest();
+                            let prog = quest.config.configVersion === 1 ? data.userStatus.streamProgressSeconds : Math.floor(data.userStatus.progress.PLAY_ON_DESKTOP.value);
+                            rxjxtUpdateUI(rxjxtQName, prog, rxjxtTarget, "Grinding");
+                            if(prog >= rxjxtTarget) {
+                                GameStore.getRunningGames = realFn1; GameStore.getGameForPID = realFn2;
+                                Dispatcher.dispatch({type: "RUNNING_GAMES_CHANGE", removed: [fake], added: [], games: []});
+                                Dispatcher.unsubscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn);
+                                rxjxtFinish();
                             }
                         };
-                        FluxDispatcher.subscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn);
+                        Dispatcher.subscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn);
                     });
                 }
-                else if(taskName === "STREAM_ON_DESKTOP") {
-                    let realFunc = ApplicationStreamingStore.getStreamerActiveStreamMetadata;
-                    ApplicationStreamingStore.getStreamerActiveStreamMetadata = () => ({ id: applicationId, pid, sourceName: null });
+                else if(rxjxtTName === "STREAM_ON_DESKTOP") {
+                    let realF = StreamStore.getStreamerActiveStreamMetadata;
+                    StreamStore.getStreamerActiveStreamMetadata = () => ({ id: rxjxtAppId, pid: pid, sourceName: null });
                     let fn = data => {
-                        if (!getToggleState()) { 
-                            FluxDispatcher.unsubscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn);
-                            ApplicationStreamingStore.getStreamerActiveStreamMetadata = realFunc;
-                            this.isGrinding = false; return;
+                        if (!rxjxtGetToggle()) { 
+                            Dispatcher.unsubscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn);
+                            StreamStore.getStreamerActiveStreamMetadata = realF;
+                            this._rxjxtIsGrinding = false; return;
                         }
-                        let progress = quest.config.configVersion === 1 ? data.userStatus.streamProgressSeconds : Math.floor(data.userStatus.progress.STREAM_ON_DESKTOP.value);
-                        updateUI(questName, progress, secondsNeeded, "Streaming");
-                        if(progress >= secondsNeeded) {
-                            ApplicationStreamingStore.getStreamerActiveStreamMetadata = realFunc;
-                            FluxDispatcher.unsubscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn);
-                            finishQuest();
+                        let prog = quest.config.configVersion === 1 ? data.userStatus.streamProgressSeconds : Math.floor(data.userStatus.progress.STREAM_ON_DESKTOP.value);
+                        rxjxtUpdateUI(rxjxtQName, prog, rxjxtTarget, "Streaming");
+                        if(prog >= rxjxtTarget) {
+                            StreamStore.getStreamerActiveStreamMetadata = realF;
+                            Dispatcher.unsubscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn);
+                            rxjxtFinish();
                         }
                     };
-                    FluxDispatcher.subscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn);
+                    Dispatcher.subscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn);
                 }
-                else if(taskName === "PLAY_ACTIVITY") {
-                    const channelId = ChannelStore.getSortedPrivateChannels()[0]?.id ?? Object.values(GuildChannelStore.getAllGuilds()).find(x => x != null && x.VOCAL.length > 0).VOCAL[0].channel.id;
-                    const streamKey = `call:${channelId}:1`;
+                else if(rxjxtTName === "PLAY_ACTIVITY") {
+                    const cId = ThreadStore.getSortedPrivateChannels()[0]?.id ?? Object.values(GuildStore.getAllGuilds()).find(x => x != null && x.VOCAL.length > 0).VOCAL[0].channel.id;
+                    const sKey = `call:${cId}:1`;
                     let fn = async () => {
                         while(true) {
-                            if (!getToggleState()) { this.isGrinding = false; return; } 
-                            const res = await api.post({url: `/quests/${quest.id}/heartbeat`, body: {stream_key: streamKey, terminal: false}});
-                            const progress = res.body.progress.PLAY_ACTIVITY.value;
-                            updateUI(questName, progress, secondsNeeded, "Syncing");
-                            await new Promise(resolve => setTimeout(resolve, 20 * 1000));
-                            if(progress >= secondsNeeded) {
-                                if (getToggleState()) await api.post({url: `/quests/${quest.id}/heartbeat`, body: {stream_key: streamKey, terminal: true}});
+                            if (!rxjxtGetToggle()) { this._rxjxtIsGrinding = false; return; } 
+                            const res = await api.post({url: `/quests/${quest.id}/heartbeat`, body: {stream_key: sKey, terminal: false}});
+                            const prog = res.body.progress.PLAY_ACTIVITY.value;
+                            rxjxtUpdateUI(rxjxtQName, prog, rxjxtTarget, "Syncing");
+                            await new Promise(r => setTimeout(r, 20000));
+                            if(prog >= rxjxtTarget) {
+                                if (rxjxtGetToggle()) await api.post({url: `/quests/${quest.id}/heartbeat`, body: {stream_key: sKey, terminal: true}});
                                 break;
                             }
                         }
-                        finishQuest();
+                        rxjxtFinish();
                     }
                     fn();
                 }
             };
-            
-            checkAndStart();
+            rxjxtCheckAndStart();
         } catch (err) {
-            this.isGrinding = false; log('QUEST', "SYSTEM INITIALIZING...", "warn");
+            this._rxjxtIsGrinding = false; rxjxtLog('QUEST', "SYSTEM INITIALIZING...", "warn");
         }
     },
     stop: function() {
-        this.isGrinding = false;
-        if(this.watcher) clearInterval(this.watcher);
+        this._rxjxtIsGrinding = false;
+        if(this._rxjxtWatcher) clearInterval(this._rxjxtWatcher);
     }
 };
