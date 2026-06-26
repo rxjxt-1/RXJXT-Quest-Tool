@@ -6,6 +6,7 @@
  * @updateUrl https://raw.githubusercontent.com/rxjxt-1/RXJXT-Quest-Tool/main/RXJXT.plugin.js
  */
 
+
 module.exports = class RXJXTQuestDashboard {
     start() {
         if (window.rxjxtEngineRunning) return;
