@@ -2,7 +2,7 @@
  * @name RXJXTQuestDashboard
  * @author RXJXT
  * @description RXJXT Hub: Quest Grinder + Cloud Fake Deafen Engine
- * @version 10.0.0
+ * @version 10.1.0
  * @updateUrl https://raw.githubusercontent.com/rxjxt-1/RXJXT-Quest-Tool/main/RXJXT.plugin.js
  */
 
@@ -19,8 +19,8 @@ module.exports = class RXJXTQuestDashboard {
         console.clear();
         const sleep = ms => new Promise(res => setTimeout(res, ms));
 
-        // URLs FOR DUAL UPDATE SYSTEM (Simplified to /main/)
-        const HUB_VER = "10.0.0";
+        // URLs FOR DUAL UPDATE SYSTEM
+        const HUB_VER = "10.1.0";
         const HUB_URL = "https://raw.githubusercontent.com/rxjxt-1/RXJXT-Quest-Tool/main/RXJXT.plugin.js";
         const DEAFEN_URL = "https://raw.githubusercontent.com/rxjxt-1/RXJXT-Deafen-Tool/main/DeafenEngine.js";
 
@@ -77,24 +77,31 @@ module.exports = class RXJXTQuestDashboard {
                 .rxjxt-panel.rxjxt-open { opacity: 1; transform: translateX(0) scale(1); pointer-events: auto; position: relative; }
                 .rxjxt-panel::before { content: ""; position: absolute; top:0; left:0; width:100%; height:100%; background: repeating-linear-gradient(transparent, transparent 2px, rgba(255, 255, 255, 0.02) 3px); pointer-events: none; z-index: 0; }
                 
-                .theme-stealth { background: rgba(10, 20, 30, 0.65); border: 1px solid rgba(0, 243, 255, 0.2); box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8), inset 0 1px 20px rgba(0, 243, 255, 0.05); }
+                /* THEMES FOR QUEST */
+                .theme-stealth { background: rgba(10, 20, 30, 0.65); border: 1px solid rgba(0, 243, 255, 0.2); box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8), inset 0 1px 20px rgba(0, 243, 255, 0.05); transition: all 0.5s ease; }
                 .theme-stealth .rxjxt-brand-name { text-shadow: 0 0 10px rgba(0, 243, 255, 0.8); color: #fff;}
                 .theme-stealth .rxjxt-mode-btn { color: #00f3ff; border-color: rgba(0, 243, 255, 0.4); }
                 .theme-stealth .rxjxt-terminal-container { border-left-color: #00f3ff; }
                 .theme-stealth .rxjxt-progress-fill { background: linear-gradient(90deg, #00f3ff, #0a58fc); box-shadow: 0 0 15px rgba(0, 243, 255, 0.6); }
                 .theme-stealth input:checked + .rxjxt-slider { background-color: #00f3ff; box-shadow: 0 0 10px rgba(0, 243, 255, 0.5); border-color: #00f3ff; }
                 
-                .theme-rage { background: rgba(30, 10, 10, 0.65); border: 1px solid rgba(255, 0, 60, 0.2); box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8), inset 0 1px 20px rgba(255, 0, 60, 0.05); }
+                .theme-rage { background: rgba(30, 10, 10, 0.65); border: 1px solid rgba(255, 0, 60, 0.2); box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8), inset 0 1px 20px rgba(255, 0, 60, 0.05); transition: all 0.5s ease; }
                 .theme-rage .rxjxt-brand-name { text-shadow: 0 0 10px rgba(255, 0, 60, 0.8); color: #ff003c; }
                 .theme-rage .rxjxt-mode-btn { color: #ff003c; border-color: rgba(255, 0, 60, 0.4); }
                 .theme-rage .rxjxt-terminal-container { border-left-color: #ff003c; }
                 .theme-rage .rxjxt-progress-fill { background: linear-gradient(90deg, #ff003c, #ff9d00); box-shadow: 0 0 15px rgba(255, 0, 60, 0.6); }
                 .theme-rage input:checked + .rxjxt-slider { background-color: #ff003c; box-shadow: 0 0 10px rgba(255, 0, 60, 0.5); border-color: #ff003c; }
 
-                .theme-deafen { background: rgba(15, 10, 30, 0.65); border: 1px solid rgba(162, 0, 255, 0.3); box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8), inset 0 1px 20px rgba(162, 0, 255, 0.1); }
-                .theme-deafen .rxjxt-brand-name { text-shadow: 0 0 10px rgba(162, 0, 255, 0.8); color: #fff;}
-                .theme-deafen .rxjxt-terminal-container { border-left-color: #a200ff; }
-                .theme-deafen input:checked + .rxjxt-slider { background-color: #ff003c; box-shadow: 0 0 10px rgba(255, 0, 60, 0.5); border-color: #ff003c; }
+                /* THEMES FOR DEAFEN (GREEN OFF / RED ON) */
+                .theme-deafen-off { background: rgba(10, 25, 15, 0.65); border: 1px solid rgba(67, 181, 129, 0.3); box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8), inset 0 1px 20px rgba(67, 181, 129, 0.1); transition: all 0.5s ease; }
+                .theme-deafen-off .rxjxt-brand-name { text-shadow: 0 0 10px rgba(67, 181, 129, 0.8); color: #fff;}
+                .theme-deafen-off .rxjxt-terminal-container { border-left-color: #43b581; transition: all 0.5s ease; }
+                .theme-deafen-off input:checked + .rxjxt-slider { background-color: #43b581; box-shadow: 0 0 10px rgba(67, 181, 129, 0.5); border-color: #43b581; }
+
+                .theme-deafen-on { background: rgba(30, 10, 10, 0.65); border: 1px solid rgba(255, 0, 60, 0.5); box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9), inset 0 1px 30px rgba(255, 0, 60, 0.2), 0 0 25px rgba(255, 0, 60, 0.3); transition: all 0.5s ease; }
+                .theme-deafen-on .rxjxt-brand-name { text-shadow: 0 0 15px rgba(255, 0, 60, 1); color: #ff003c;}
+                .theme-deafen-on .rxjxt-terminal-container { border-left-color: #ff003c; box-shadow: inset 0 0 15px rgba(255,0,60,0.2); transition: all 0.5s ease; }
+                .theme-deafen-on input:checked + .rxjxt-slider { background-color: #ff003c; box-shadow: 0 0 15px rgba(255, 0, 60, 0.8); border-color: #ff003c; }
 
                 .rxjxt-header { background: rgba(255, 255, 255, 0.05); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1); position: relative; z-index: 20; }
                 .rxjxt-brand-name { font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: 2px; transition: color 0.3s, text-shadow 0.3s; }
@@ -110,7 +117,7 @@ module.exports = class RXJXTQuestDashboard {
                 
                 .rxjxt-body { padding: 20px; position: relative; z-index: 3; }
                 .rxjxt-status-box { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 12px; }
-                .rxjxt-live-status { color: #fcee0a; font-weight: bold; text-shadow: 0 0 5px rgba(252, 238, 10, 0.5); }
+                .rxjxt-live-status { font-weight: bold; transition: color 0.5s ease; }
                 .rxjxt-eta { color: rgba(255,255,255,0.8); font-weight: bold; }
                 .rxjxt-label { font-size: 11px; color: rgba(255,255,255,0.6); text-transform: uppercase; margin-bottom: 4px; display: block; }
                 .rxjxt-value { font-size: 14px; color: #fff; margin-bottom: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 0 8px rgba(255,255,255,0.3); line-height: 1.4; }
@@ -136,6 +143,7 @@ module.exports = class RXJXTQuestDashboard {
 
             document.body.insertAdjacentHTML('beforeend', `
                 <div id="rxjxt-liquid-ui">
+                    <!-- DROP-DOWN HUB -->
                     <div id="rxjxt-mini-menu">
                         <div class="rxjxt-menu-item" id="rxjxt-menu-quest">
                             <svg viewBox="0 0 24 24" class="quest-icon"><path fill="currentColor" d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4-3c-.83 0-1.5-.67-1.5-1.5S18.67 9 19.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
@@ -146,6 +154,7 @@ module.exports = class RXJXTQuestDashboard {
                             <span>Fake Deafen</span>
                         </div>
                         
+                        <!-- DUAL UPDATE BUTTONS -->
                         <div class="rxjxt-menu-item" id="rxjxt-update-hub" style="display: none; border-color: rgba(252,238,10,0.4);">
                             <svg viewBox="0 0 24 24" class="upd-hub"><path fill="currentColor" d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.36 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
                             <span id="rxjxt-uhub-text" style="color: #fcee0a; text-shadow: 0 0 8px rgba(252,238,10,0.5);">Update Hub</span>
@@ -156,6 +165,7 @@ module.exports = class RXJXTQuestDashboard {
                         </div>
                     </div>
 
+                    <!-- QUEST DASHBOARD -->
                     <div id="rxjxt-quest-dash" class="rxjxt-panel theme-stealth">
                         <div id="rxjxt-popup">
                             <div class="rxjxt-popup-title" id="rxjxt-popup-title">WARNING</div>
@@ -166,7 +176,7 @@ module.exports = class RXJXTQuestDashboard {
                             </div>
                         </div>
                         <div class="rxjxt-header">
-                            <div class="rxjxt-brand-name">${_k} QUEST V10</div>
+                            <div class="rxjxt-brand-name">${_k} QUEST V10.1</div>
                             <div class="rxjxt-controls">
                                 <button class="rxjxt-mode-btn" id="rxjxt-mode-btn" title="Toggle Grind Mode">[ STEALTH ]</button>
                                 <label class="rxjxt-toggle" title="Toggle Quest Auto-Grind">
@@ -177,7 +187,7 @@ module.exports = class RXJXTQuestDashboard {
                             </div>
                         </div>
                         <div class="rxjxt-body">
-                            <div class="rxjxt-status-box"><div class="rxjxt-live-status" id="rxjxt-live-status">SYSTEM IDLE...</div><div class="rxjxt-eta" id="rxjxt-eta">ETA: --:--</div></div>
+                            <div class="rxjxt-status-box"><div class="rxjxt-live-status" id="rxjxt-live-status" style="color: #00f3ff; text-shadow: 0 0 5px rgba(0,243,255,0.5);">SYSTEM IDLE...</div><div class="rxjxt-eta" id="rxjxt-eta">ETA: --:--</div></div>
                             <span class="rxjxt-label">Target Info</span><div class="rxjxt-value" id="rxjxt-current-quest">WAITING...</div>
                             <span class="rxjxt-label">Progress <span id="rxjxt-pct" style="float:right; font-weight:bold;">0%</span></span>
                             <div class="rxjxt-progress-wrapper"><div class="rxjxt-progress-fill" id="rxjxt-bar"></div></div>
@@ -185,9 +195,10 @@ module.exports = class RXJXTQuestDashboard {
                         </div>
                     </div>
 
-                    <div id="rxjxt-deafen-dash" class="rxjxt-panel theme-deafen">
+                    <!-- FAKE DEAFEN DASHBOARD -->
+                    <div id="rxjxt-deafen-dash" class="rxjxt-panel theme-deafen-off">
                         <div class="rxjxt-header">
-                            <div class="rxjxt-brand-name">${_k} DEAFEN V10</div>
+                            <div class="rxjxt-brand-name">${_k} DEAFEN V10.1</div>
                             <div class="rxjxt-controls">
                                 <label class="rxjxt-toggle" title="Toggle Fake Deafen">
                                     <input type="checkbox" id="rxjxt-deafen-toggle">
@@ -222,10 +233,19 @@ module.exports = class RXJXTQuestDashboard {
                 window.rxjxtMode = window.rxjxtMode === 'STEALTH' ? 'RAGE' : 'STEALTH';
                 modeBtn.innerText = `[ ${window.rxjxtMode} ]`;
                 questDash.className = `rxjxt-panel rxjxt-open theme-${window.rxjxtMode.toLowerCase()}`;
+                
+                const qStatusText = document.getElementById('rxjxt-live-status');
+                if(window.rxjxtMode === 'RAGE'){
+                    qStatusText.style.color = "#ff003c";
+                    qStatusText.style.textShadow = "0 0 5px rgba(255,0,60,0.5)";
+                } else {
+                    qStatusText.style.color = "#00f3ff";
+                    qStatusText.style.textShadow = "0 0 5px rgba(0,243,255,0.5)";
+                }
                 rxjxtLog('QUEST', `MODE SWITCHED TO: ${window.rxjxtMode}`, window.rxjxtMode === 'RAGE' ? "brand" : "info");
             };
 
-            // MODULAR FAKE DEAFEN TOGGLE
+            // MODULAR FAKE DEAFEN TOGGLE WITH PANEL GLOW
             const deafenInput = document.getElementById('rxjxt-deafen-toggle');
             const headsetIcon = document.getElementById('rxjxt-headset-icon');
             const deafenStatusText = document.getElementById('rxjxt-deafen-status');
@@ -241,13 +261,18 @@ module.exports = class RXJXTQuestDashboard {
                 }
 
                 try {
-                    // Injecting the downloaded engine
                     eval(savedCode);
                     
                     const updateUI = (text, color, isGlow) => {
                         headsetIcon.className.baseVal = isGlow ? 'headset-on' : 'headset-off';
                         deafenStatusText.innerText = text;
                         deafenStatusText.style.color = color;
+                        
+                        // Dynamically changing the entire panel's theme glow
+                        const panel = document.getElementById('rxjxt-deafen-dash');
+                        if (panel) {
+                            panel.className = `rxjxt-panel ${panel.classList.contains('rxjxt-open') ? 'rxjxt-open' : ''} ${isGlow ? 'theme-deafen-on' : 'theme-deafen-off'}`;
+                        }
                     };
 
                     if (window.rxjxtDeafenToggle) window.rxjxtDeafenEngine.start(rxjxtLog, updateUI);
@@ -260,7 +285,6 @@ module.exports = class RXJXTQuestDashboard {
             });
 
             // --- DUAL UPDATE CHECKER ---
-            // 1. Check Hub Update
             fetch(HUB_URL).then(res => res.text()).then(code => {
                 let match = code.match(/@version\s+([0-9.]+)/);
                 if(match && match[1] !== HUB_VER) {
@@ -276,7 +300,6 @@ module.exports = class RXJXTQuestDashboard {
                 }
             }).catch(()=>{});
 
-            // 2. Check Deafen Cloud Engine Update
             fetch(DEAFEN_URL).then(res => res.text()).then(code => {
                 let match = code.match(/@version\s+([0-9.]+)/);
                 let currentVer = BdApi.Data.load("RXJXTHub", "DeafenVersion") || "0.0.0";
@@ -387,7 +410,7 @@ module.exports = class RXJXTQuestDashboard {
         }, 1000);
 
         injectLiquidUI();
-        rxjxtLog('QUEST', "RXJXT V10 HUB INITIALIZED...", "brand");
+        rxjxtLog('QUEST', "RXJXT V10.1 HUB INITIALIZED...", "brand");
         rxjxtLog('DEAFEN', "HUB READY. CHECKING CLOUD MODULE...", "info");
 
         // CORE QUEST GRINDER LOGIC
