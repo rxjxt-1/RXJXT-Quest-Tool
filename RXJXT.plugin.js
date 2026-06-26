@@ -2,7 +2,7 @@
  * @name RXJXTQuestDashboard
  * @author RXJXT
  * @description RXJXT Liquid Hub: Unified Cloud Shell (Anti-Tamper)
- * @version 12.0.0
+ * @version 12.0.1
  * @updateUrl https://raw.githubusercontent.com/rxjxt-1/RXJXT-Quest-Tool/main/RXJXT.plugin.js
  */
 
@@ -25,13 +25,14 @@ module.exports = class RXJXTQuestDashboard {
         console.clear();
         
         // UNIFIED CLOUD REPO URLS
-        const RXJXT_HUB_VER = "12.0.0";
+        const RXJXT_HUB_VER = "12.0.1";
         const RXJXT_REPO_BASE = "https://raw.githubusercontent.com/rxjxt-1/RXJXT-Quest-Tool/main/";
         const RXJXT_HUB_URL = RXJXT_REPO_BASE + "RXJXT.plugin.js";
         const RXJXT_QUEST_URL = RXJXT_REPO_BASE + "QuestEngine.js";
         const RXJXT_DEAFEN_URL = RXJXT_REPO_BASE + "DeafenEngine.js";
 
-        const RXJXT_LOGO = "https://cdn.discordapp.com/attachments/1354865979145978109/1432999976543322202/b3e66a70-76a7-455b-8c40-6fccf7dc6193_1.png?ex=6a3cddba&is=6a3b8c3a&hm=d8474058ce1fa9b246f66919c6b90e8371236e70ed09ed4e54ba4a8e5a9b0438&"; 
+        // FIXED VARIABLE REFERENCE HERE
+        const CUSTOM_LOGO_URL = "https://cdn.discordapp.com/attachments/1354865979145978109/1432999976543322202/b3e66a70-76a7-455b-8c40-6fccf7dc6193_1.png?ex=6a3cddba&is=6a3b8c3a&hm=d8474058ce1fa9b246f66919c6b90e8371236e70ed09ed4e54ba4a8e5a9b0438&"; 
 
         const rxjxtLog = (app, msg, type = "info") => {
             const colors = { info: "#0A84FF", success: "#30D158", warn: "#FF9F0A", error: "#FF453A", brand: "#FF453A", finish: "#32ADE6" };
@@ -115,7 +116,9 @@ module.exports = class RXJXTQuestDashboard {
                             <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 3a9 9 0 0 0-9 9v7c0 1.1.9 2 2 2h4v-8H5v-1c0-3.87 3.13-7 7-7s7 3.13 7 7v1h-4v8h4c1.1 0 2-.9 2-2v-7a9 9 0 0 0-9-9z"/></svg>
                             <span>Deafen</span>
                         </div>
-                        <div class="rxjxt-hub-item" id="rxjxt-update-hub" style="display: none; color: #32ADE6;">
+                        
+                        <!-- DUAL UPDATE BUTTONS -->
+                        <div class="rxjxt-menu-item" id="rxjxt-update-hub" style="display: none; border-color: rgba(50,173,230,0.4);">
                             <svg viewBox="0 0 24 24" class="upd-icon"><path fill="currentColor" d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.36 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
                             <span id="rxjxt-uhub-text">Hub</span>
                         </div>
