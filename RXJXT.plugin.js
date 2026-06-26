@@ -1,8 +1,8 @@
 /**
  * @name RXJXTQuestDashboard
  * @author RXJXT
- * @description RXJXT Hub: Quest Auto-Grinder + Fake Deafen (Acrylic Theme)
- * @version 9.0.0
+ * @description RXJXT Hub: Quest Grinder + Fake Deafen + Auto Updater
+ * @version 9.1.0
  * @updateUrl https://raw.githubusercontent.com/rxjxt-1/RXJXT-Quest-Tool/refs/heads/main/RXJXT.plugin.js
  */
 
@@ -15,19 +15,18 @@ module.exports = class RXJXTQuestDashboard {
         window.rxjxtGrindToggle = false; 
         window.rxjxtMode = 'STEALTH'; 
         window.rxjxtVideoApproval = false;
-        window.rxjxtDeafenToggle = false; // Fake Deafen State
+        window.rxjxtDeafenToggle = false; 
 
         console.clear();
         const sleep = ms => new Promise(res => setTimeout(res, ms));
 
-        const CURRENT_VERSION = "9.0.0";
+        const CURRENT_VERSION = "9.1.0";
         const UPDATE_URL = "https://raw.githubusercontent.com/rxjxt-1/RXJXT-Quest-Tool/refs/heads/main/RXJXT.plugin.js";
         const CUSTOM_LOGO_URL = "https://cdn.discordapp.com/attachments/1354865979145978109/1432999976543322202/b3e66a70-76a7-455b-8c40-6fccf7dc6193_1.png?ex=6a3cddba&is=6a3b8c3a&hm=d8474058ce1fa9b246f66919c6b90e8371236e70ed09ed4e54ba4a8e5a9b0438&"; 
 
         const _k = ["R", "X", "J", "X", "T"].join("");
         if (this.constructor.name !== `${_k}QuestDashboard` || typeof BdApi === "undefined") {
             console.error("%c[ RXJXT SECURITY ] CODE TAMPERING DETECTED. CORRUPTING ENGINE...", "color: red; font-size: 20px; font-weight: bold;");
-            // Security Algorithm - Corrupts variables if tampered
             window.rxjxtEngineRunning = null;
             return Math.random() * 0; 
         }
@@ -58,7 +57,7 @@ module.exports = class RXJXTQuestDashboard {
                 
                 /* MINI MENU (HUB) */
                 #rxjxt-mini-menu {
-                    width: 200px; background: rgba(15, 20, 25, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+                    width: 210px; background: rgba(15, 20, 25, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
                     border: 1px solid rgba(0, 243, 255, 0.3); border-radius: 12px; padding: 10px;
                     box-shadow: 0 10px 30px rgba(0,0,0,0.8); opacity: 0; transform: translateY(-10px) scale(0.95);
                     transform-origin: top right; pointer-events: none; transition: all 0.3s ease;
@@ -71,12 +70,14 @@ module.exports = class RXJXTQuestDashboard {
                 .rxjxt-menu-item svg { width: 22px; height: 22px; transition: filter 0.3s ease; }
                 .rxjxt-menu-item span { font-family: 'Rajdhani', sans-serif; font-weight: bold; font-size: 16px; letter-spacing: 1px; }
 
-                /* HEADSET GLOW LOGIC */
+                /* ICONS & GLOW EFFECTS */
                 .headset-off { color: #43b581; filter: drop-shadow(0 0 8px rgba(67, 181, 129, 0.8)); }
                 .headset-on { color: #ff003c; filter: drop-shadow(0 0 12px rgba(255, 0, 60, 0.9)); animation: pulse-red 2s infinite; }
-                .quest-icon { color: #fcee0a; filter: drop-shadow(0 0 8px rgba(252, 238, 10, 0.6)); }
+                .quest-icon { color: #00f3ff; filter: drop-shadow(0 0 8px rgba(0, 243, 255, 0.6)); }
+                .update-icon { color: #fcee0a; filter: drop-shadow(0 0 12px rgba(252, 238, 10, 0.9)); animation: pulse-yellow 1.5s infinite; }
 
                 @keyframes pulse-red { 0%, 100% { filter: drop-shadow(0 0 12px rgba(255, 0, 60, 0.9)); } 50% { filter: drop-shadow(0 0 20px rgba(255, 0, 60, 1)); } }
+                @keyframes pulse-yellow { 0%, 100% { filter: drop-shadow(0 0 10px rgba(252, 238, 10, 0.7)); } 50% { filter: drop-shadow(0 0 18px rgba(252, 238, 10, 1)); } }
 
                 /* DASHBOARDS */
                 .rxjxt-panel { 
@@ -154,6 +155,7 @@ module.exports = class RXJXTQuestDashboard {
             document.body.insertAdjacentHTML('beforeend', `
                 <div id="rxjxt-liquid-ui">
                     
+                    <!-- DROP-DOWN HUB -->
                     <div id="rxjxt-mini-menu">
                         <div class="rxjxt-menu-item" id="rxjxt-menu-quest">
                             <svg viewBox="0 0 24 24" class="quest-icon"><path fill="currentColor" d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4-3c-.83 0-1.5-.67-1.5-1.5S18.67 9 19.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
@@ -163,8 +165,14 @@ module.exports = class RXJXTQuestDashboard {
                             <svg viewBox="0 0 24 24" id="rxjxt-headset-icon" class="headset-off"><path fill="currentColor" d="M12 3a9 9 0 0 0-9 9v7c0 1.1.9 2 2 2h4v-8H5v-1c0-3.87 3.13-7 7-7s7 3.13 7 7v1h-4v8h4c1.1 0 2-.9 2-2v-7a9 9 0 0 0-9-9z"/></svg>
                             <span>Fake Deafen</span>
                         </div>
+                        <!-- UPDATE BUTTON (Hidden by default) -->
+                        <div class="rxjxt-menu-item" id="rxjxt-menu-update" style="display: none;">
+                            <svg viewBox="0 0 24 24" class="update-icon"><path fill="currentColor" d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.36 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+                            <span id="rxjxt-update-text" style="color: #fcee0a; text-shadow: 0 0 8px rgba(252,238,10,0.5);">Update Found!</span>
+                        </div>
                     </div>
 
+                    <!-- QUEST DASHBOARD -->
                     <div id="rxjxt-quest-dash" class="rxjxt-panel theme-stealth">
                         <div id="rxjxt-popup">
                             <div class="rxjxt-popup-title" id="rxjxt-popup-title">WARNING</div>
@@ -194,6 +202,7 @@ module.exports = class RXJXTQuestDashboard {
                         </div>
                     </div>
 
+                    <!-- FAKE DEAFEN DASHBOARD -->
                     <div id="rxjxt-deafen-dash" class="rxjxt-panel theme-deafen">
                         <div class="rxjxt-header">
                             <div class="rxjxt-brand-name">${_k} DEAFEN V9</div>
@@ -270,6 +279,31 @@ module.exports = class RXJXTQuestDashboard {
                     rxjxtLog('DEAFEN', "FAKE DEAFEN DISABLED. Connection normal.", "warn");
                 }
             });
+
+            // OTA GITHUB UPDATER LOGIC
+            fetch(UPDATE_URL).then(res => res.text()).then(code => {
+                const match = code.match(/@version\s+([0-9.]+)/);
+                if(match && match[1] !== CURRENT_VERSION) {
+                    const updateMenuBtn = document.getElementById('rxjxt-menu-update');
+                    if (updateMenuBtn) {
+                        updateMenuBtn.style.display = 'flex'; // Show in Hub
+                        document.getElementById('rxjxt-update-text').innerText = `Update v${match[1]}`;
+                        
+                        updateMenuBtn.onclick = () => {
+                            try {
+                                const fs = require('fs');
+                                const path = require('path');
+                                const pluginFile = path.join(BdApi.Plugins.folder, "RXJXT.plugin.js");
+                                fs.writeFileSync(pluginFile, code);
+                                BdApi.UI.showToast(`RXJXT Tool Updated to v${match[1]}! Reloading...`, {type: "success"});
+                                setTimeout(() => location.reload(), 2000);
+                            } catch(e) {
+                                BdApi.UI.showToast("Update failed. Do it manually.", {type: "error"});
+                            }
+                        };
+                    }
+                }
+            }).catch(err => { console.log("OTA Update Check Failed."); });
         };
 
         const ensureToolbarIcon = () => {
@@ -372,7 +406,7 @@ module.exports = class RXJXTQuestDashboard {
             }
         }, 1000);
 
-        // FAKE DEAFEN CORE LOGIC (Native WebSocket Intercept)
+        // FAKE DEAFEN CORE LOGIC
         const enableFakeDeafenHook = () => {
             if (!window.rxjxtWSHooked) {
                 window.rxjxtOriginalWS = window.WebSocket.prototype.send;
@@ -401,7 +435,7 @@ module.exports = class RXJXTQuestDashboard {
         };
 
         injectLiquidUI();
-        rxjxtLog('QUEST', "RXJXT V9 CORE ENGINE INITIALIZED...", "brand");
+        rxjxtLog('QUEST', "RXJXT V9.1 CORE ENGINE INITIALIZED...", "brand");
         rxjxtLog('DEAFEN', "SYSTEM READY.", "info");
 
         let isGrinding = false;
@@ -650,7 +684,6 @@ module.exports = class RXJXTQuestDashboard {
         window.rxjxtGrindToggle = false;
         window.rxjxtDeafenToggle = false;
         
-        // Reset Fake Deafen WebSocket Hook
         if (window.rxjxtWSHooked && window.rxjxtOriginalWS) {
             window.WebSocket.prototype.send = window.rxjxtOriginalWS;
             window.rxjxtWSHooked = false;
