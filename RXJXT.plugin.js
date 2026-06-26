@@ -1,8 +1,8 @@
 /**
  * @name RXJXTQuestDashboard
  * @author RXJXT
- * @description Dropdown UI, Optimized 
- * @version 8.0.0
+ * @description Dropdown UI, Optimized, Acrylic Glass Theme & Grind Toggle
+ * @version 8.1.0
  * @updateUrl https://raw.githubusercontent.com/rxjxt-1/RXJXT-Quest-Tool/refs/heads/main/RXJXT.plugin.js
  */
 
@@ -10,18 +10,15 @@ module.exports = class RXJXTQuestDashboard {
     start() {
         if (window.rxjxtEngineRunning) return;
         window.rxjxtEngineRunning = true;
+        window.rxjxtGrindToggle = false; // By default OFF rakha hai
 
         console.clear();
         const sleep = ms => new Promise(res => setTimeout(res, ms));
 
-    
-        const CURRENT_VERSION = "8.0.0";
+        const CURRENT_VERSION = "8.1.0";
         const UPDATE_URL = "https://raw.githubusercontent.com/rxjxt-1/RXJXT-Quest-Tool/refs/heads/main/RXJXT.plugin.js";
-        
-      
         const CUSTOM_LOGO_URL = "https://cdn.discordapp.com/attachments/1354865979145978109/1432999976543322202/b3e66a70-76a7-455b-8c40-6fccf7dc6193_1.png?ex=6a3cddba&is=6a3b8c3a&hm=d8474058ce1fa9b246f66919c6b90e8371236e70ed09ed4e54ba4a8e5a9b0438&"; 
 
-     
         const _k = ["R", "X", "J", "X", "T"].join("");
         if (this.constructor.name !== `${_k}QuestDashboard` || typeof BdApi === "undefined") {
             console.error("%c[ RXJXT SECURITY ] CODE TAMPERING DETECTED. CORRUPTING ENGINE...", "color: red; font-size: 20px; font-weight: bold;");
@@ -50,15 +47,18 @@ module.exports = class RXJXTQuestDashboard {
             style.innerHTML = `
                 @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Share+Tech+Mono&display=swap');
                 
-                #rxjxt-liquid-ui { position: fixed; top: 65px; right: 15px; z-index: 9999999; font-family: 'Share Tech Mono', monospace; color: #fff; perspective: 1000px; }
+                /* Fixed pointer-events issue here */
+                #rxjxt-liquid-ui { position: fixed; top: 65px; right: 15px; z-index: 9999999; font-family: 'Share Tech Mono', monospace; color: #fff; perspective: 1000px; pointer-events: none; }
                 
+                /* Acrylic Glassmorphism Theme */
                 #rxjxt-main-dash { 
                     width: 380px; 
-                    background: rgba(10, 15, 20, 0.65); 
-                    backdrop-filter: blur(35px); -webkit-backdrop-filter: blur(35px); 
-                    border: 1px solid rgba(0, 243, 255, 0.3); 
-                    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9), inset 0 0 20px rgba(0,243,255,0.05); 
-                    border-radius: 12px; overflow: hidden; position: relative;
+                    background: rgba(15, 20, 25, 0.4); 
+                    backdrop-filter: blur(25px) saturate(180%); 
+                    -webkit-backdrop-filter: blur(25px) saturate(180%); 
+                    border: 1px solid rgba(255, 255, 255, 0.15); 
+                    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.1); 
+                    border-radius: 16px; overflow: hidden; position: relative;
                     
                     opacity: 0;
                     transform: translateY(-20px) scale(0.95);
@@ -68,48 +68,53 @@ module.exports = class RXJXTQuestDashboard {
                 }
                 
                 #rxjxt-main-dash.rxjxt-open { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
-                #rxjxt-main-dash::before { content: ""; position: absolute; top:0; left:0; width:100%; height:100%; background: repeating-linear-gradient(transparent, transparent 2px, rgba(0, 243, 255, 0.03) 3px); pointer-events: none; z-index: 0; }
+                #rxjxt-main-dash::before { content: ""; position: absolute; top:0; left:0; width:100%; height:100%; background: repeating-linear-gradient(transparent, transparent 2px, rgba(255, 255, 255, 0.02) 3px); pointer-events: none; z-index: 0; }
                 
-                .rxjxt-header { background: linear-gradient(90deg, rgba(255,0,60,0.85) 0%, rgba(0,0,0,0.4) 100%); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(252, 238, 10, 0.5); position: relative; z-index: 20; }
-                .rxjxt-brand-name { font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: 2px; text-shadow: 0 0 10px #ff003c; animation: glitch 3s infinite; }
-                .rxjxt-controls { display: flex; gap: 15px; }
-                .rxjxt-btn-icon { color: #00f3ff; cursor: pointer; font-weight: bold; transition: 0.2s; text-shadow: 0 0 5px #00f3ff; font-size: 16px; }
-                .rxjxt-btn-icon:hover { color: #fff; text-shadow: 0 0 15px #fff; transform: scale(1.3); }
+                .rxjxt-header { background: rgba(255, 255, 255, 0.05); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1); position: relative; z-index: 20; }
+                .rxjxt-brand-name { font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: 2px; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
+                .rxjxt-controls { display: flex; align-items: center; gap: 12px; }
+                
+                /* TOGGLE SWITCH CSS */
+                .rxjxt-toggle { position: relative; display: inline-block; width: 36px; height: 18px; }
+                .rxjxt-toggle input { opacity: 0; width: 0; height: 0; }
+                .rxjxt-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.2); transition: .4s; border-radius: 34px; border: 1px solid rgba(255,255,255,0.1); }
+                .rxjxt-slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%; }
+                input:checked + .rxjxt-slider { background-color: #00f3ff; box-shadow: 0 0 10px rgba(0, 243, 255, 0.5); border-color: #00f3ff; }
+                input:checked + .rxjxt-slider:before { transform: translateX(16px); background-color: #111; }
+
+                .rxjxt-btn-icon { color: rgba(255,255,255,0.7); cursor: pointer; font-weight: bold; transition: 0.2s; font-size: 16px; }
+                .rxjxt-btn-icon:hover { color: #fff; text-shadow: 0 0 10px #fff; transform: scale(1.2); }
                 
                 #rxjxt-update-btn { display: none; color: #fcee0a; text-shadow: 0 0 10px #ff9d00; animation: pulse-mini 1s infinite; font-size: 18px; margin-right: 5px; }
-                #rxjxt-update-btn:hover { color: #fff; text-shadow: 0 0 20px #00f3ff; transform: scale(1.4); }
 
                 .rxjxt-body { padding: 20px; position: relative; z-index: 3; }
                 .rxjxt-status-box { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 12px; }
-                #rxjxt-live-status { color: #fcee0a; font-weight: bold; text-shadow: 0 0 5px #fcee0a; }
-                #rxjxt-eta { color: #00f3ff; font-weight: bold; }
+                #rxjxt-live-status { color: #fcee0a; font-weight: bold; text-shadow: 0 0 5px rgba(252, 238, 10, 0.5); }
+                #rxjxt-eta { color: rgba(255,255,255,0.8); font-weight: bold; }
                 .rxjxt-label { font-size: 11px; color: rgba(255,255,255,0.6); text-transform: uppercase; margin-bottom: 4px; display: block; }
-                .rxjxt-value { font-size: 14px; color: #fff; text-shadow: 0 0 8px #00f3ff; margin-bottom: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+                .rxjxt-value { font-size: 14px; color: #fff; margin-bottom: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 0 8px rgba(0,243,255,0.5); }
                 
-                .rxjxt-progress-wrapper { width: 100%; height: 8px; background: rgba(0,0,0,0.8); border: 1px solid rgba(0, 243, 255, 0.3); border-radius: 4px; position: relative; margin-bottom: 20px; overflow: hidden; box-shadow: inset 0 0 5px #000; }
-                .rxjxt-progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #00f3ff, #fcee0a); box-shadow: 0 0 15px #fcee0a; transition: width 0.4s ease; position: relative; }
+                .rxjxt-progress-wrapper { width: 100%; height: 8px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 4px; position: relative; margin-bottom: 20px; overflow: hidden; box-shadow: inset 0 0 5px rgba(0,0,0,0.8); }
+                .rxjxt-progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #00f3ff, #fcee0a); box-shadow: 0 0 15px rgba(252, 238, 10, 0.5); transition: width 0.4s ease; position: relative; }
                 
-                .rxjxt-terminal-container { background: rgba(0, 0, 0, 0.7); border: 1px solid rgba(255,0,60,0.3); border-left: 3px solid #ff003c; border-radius: 4px; padding: 10px; height: 120px; overflow-y: auto; font-size: 11px; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); }
+                .rxjxt-terminal-container { background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255,255,255,0.1); border-left: 3px solid #00f3ff; border-radius: 6px; padding: 10px; height: 120px; overflow-y: auto; font-size: 11px; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
                 .rxjxt-terminal-container::-webkit-scrollbar { width: 4px; }
-                .rxjxt-terminal-container::-webkit-scrollbar-thumb { background: #00f3ff; border-radius: 2px; }
+                .rxjxt-terminal-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 2px; }
 
                 /* NATIVE TOOLBAR ICON */
                 #rxjxt-header-btn { margin: 0 12px !important; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-                #rxjxt-header-btn:hover { transform: translateY(-3px) scale(1.15); filter: drop-shadow(0px 5px 10px rgba(255,0,60,0.4)); }
+                #rxjxt-header-btn:hover { transform: translateY(-3px) scale(1.15); filter: drop-shadow(0px 5px 10px rgba(0,243,255,0.4)); }
                 
-                #rxjxt-header-ring { width: 34px; height: 34px; border-radius: 50%; background: conic-gradient(#00f3ff var(--rxjxt-prog, 0%), rgba(255,0,60,0.2) 0); display: flex; justify-content: center; align-items: center; box-shadow: 0 0 10px rgba(0, 243, 255, 0.3); transition: background 0.3s ease; animation: pulse-mini-ring 3s infinite; }
+                #rxjxt-header-ring { width: 34px; height: 34px; border-radius: 50%; background: conic-gradient(#00f3ff var(--rxjxt-prog, 0%), rgba(255,255,255,0.1) 0); display: flex; justify-content: center; align-items: center; box-shadow: 0 0 10px rgba(0, 243, 255, 0.2); transition: background 0.3s ease; }
                 #rxjxt-header-inner { width: 26px; height: 26px; background: #1e1f22; border-radius: 50%; display: flex; justify-content: center; align-items: center; overflow: hidden; box-shadow: inset 0 0 8px rgba(0,0,0,0.8); }
                 .rxjxt-custom-logo { width: 18px; height: 18px; object-fit: contain; transition: transform 0.3s ease; }
                 #rxjxt-header-btn:hover .rxjxt-custom-logo { transform: scale(1.2); }
                 
-                #rxjxt-popup { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(8px); z-index: 10; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 50px 20px 20px 20px; box-sizing: border-box; }
-                .rxjxt-popup-title { color: #ff003c; font-size: 18px; font-weight: bold; margin-bottom: 10px; text-shadow: 0 0 10px #ff003c; }
-                .rxjxt-popup-text { color: #aaa; font-size: 12px; margin-bottom: 20px; }
-                .rxjxt-action-btn { background: rgba(0, 243, 255, 0.1); border: 1px solid #00f3ff; color: #00f3ff; padding: 8px 20px; font-family: inherit; font-weight: bold; cursor: pointer; transition: 0.3s; box-shadow: 0 0 10px rgba(0, 243, 255, 0.2); border-radius: 4px; }
-                .rxjxt-action-btn:hover { background: #00f3ff; color: #000; box-shadow: 0 0 20px #00f3ff; }
-                
-                @keyframes pulse-mini-ring { 0%, 100% { box-shadow: 0 0 5px rgba(255,0,60,0.4); } 50% { box-shadow: 0 0 15px rgba(0,243,255,0.7); } }
-                @keyframes glitch { 0%, 100% { transform: translate(0); } 20% { transform: translate(-1px, 1px); } 40% { transform: translate(1px, -1px); } }
+                #rxjxt-popup { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10,15,20,0.85); backdrop-filter: blur(8px); z-index: 10; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 50px 20px 20px 20px; box-sizing: border-box; border-radius: 16px; }
+                .rxjxt-popup-title { color: #fff; font-size: 18px; font-weight: bold; margin-bottom: 10px; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
+                .rxjxt-popup-text { color: #ccc; font-size: 12px; margin-bottom: 20px; }
+                .rxjxt-action-btn { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 8px 20px; font-family: inherit; font-weight: bold; cursor: pointer; transition: 0.3s; border-radius: 6px; }
+                .rxjxt-action-btn:hover { background: #fff; color: #000; box-shadow: 0 0 15px rgba(255,255,255,0.5); }
             `;
             document.head.appendChild(style);
 
@@ -125,13 +130,17 @@ module.exports = class RXJXTQuestDashboard {
                             <div class="rxjxt-brand-name">${_k} TOOL v${CURRENT_VERSION}</div>
                             <div class="rxjxt-controls">
                                 <span class="rxjxt-btn-icon" id="rxjxt-update-btn" title="Cloud Update Available!">☁️</span>
+                                <label class="rxjxt-toggle" title="Toggle Quest Auto-Grind">
+                                    <input type="checkbox" id="rxjxt-grind-toggle">
+                                    <span class="rxjxt-slider"></span>
+                                </label>
                                 <span class="rxjxt-btn-icon" id="rxjxt-close-btn" title="Hide Dashboard">✕</span>
                             </div>
                         </div>
                         <div class="rxjxt-body">
-                            <div class="rxjxt-status-box"><div id="rxjxt-live-status">AWAITING SYSTEM...</div><div id="rxjxt-eta">ETA: --:--</div></div>
-                            <span class="rxjxt-label">Target Info</span><div class="rxjxt-value" id="rxjxt-current-quest">SEARCHING...</div>
-                            <span class="rxjxt-label">Progress <span id="rxjxt-pct" style="float:right; color:#fcee0a; font-weight:bold;">0%</span></span>
+                            <div class="rxjxt-status-box"><div id="rxjxt-live-status">SYSTEM IDLE... (TURN ON)</div><div id="rxjxt-eta">ETA: --:--</div></div>
+                            <span class="rxjxt-label">Target Info</span><div class="rxjxt-value" id="rxjxt-current-quest">WAITING...</div>
+                            <span class="rxjxt-label">Progress <span id="rxjxt-pct" style="float:right; color:#00f3ff; font-weight:bold;">0%</span></span>
                             <div class="rxjxt-progress-wrapper"><div class="rxjxt-progress-fill" id="rxjxt-bar"></div></div>
                             <span class="rxjxt-label">Engine Terminal</span><div class="rxjxt-terminal-container" id="rxjxt-terminal"></div>
                         </div>
@@ -188,17 +197,12 @@ module.exports = class RXJXTQuestDashboard {
                     </div>
                 `;
                 
-               
                 btn.onclick = (e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     const mainDash = document.getElementById('rxjxt-main-dash');
                     if(mainDash) {
-                        if (mainDash.classList.contains('rxjxt-open')) {
-                            mainDash.classList.remove('rxjxt-open');
-                        } else {
-                            mainDash.classList.add('rxjxt-open');
-                        }
+                        mainDash.classList.toggle('rxjxt-open');
                     }
                 };
 
@@ -225,9 +229,9 @@ module.exports = class RXJXTQuestDashboard {
             if (headerRing) {
                 headerRing.style.setProperty('--rxjxt-prog', `${pct}%`);
                 if(pct >= 100) {
-                    headerRing.style.background = `conic-gradient(#fcee0a var(--rxjxt-prog, 0%), rgba(255,0,60,0.2) 0)`;
+                    headerRing.style.background = `conic-gradient(#fcee0a var(--rxjxt-prog, 0%), rgba(255,255,255,0.1) 0)`;
                 } else {
-                    headerRing.style.background = `conic-gradient(#00f3ff var(--rxjxt-prog, 0%), rgba(255,0,60,0.2) 0)`;
+                    headerRing.style.background = `conic-gradient(#00f3ff var(--rxjxt-prog, 0%), rgba(255,255,255,0.1) 0)`;
                 }
             }
         };
@@ -249,7 +253,7 @@ module.exports = class RXJXTQuestDashboard {
         };
 
         window.rxjxtTimer = setInterval(() => {
-            if (currentSecondsLeft > 0) {
+            if (currentSecondsLeft > 0 && window.rxjxtGrindToggle) {
                 currentSecondsLeft--;
                 let mins = Math.floor(currentSecondsLeft / 60).toString().padStart(2, '0');
                 let secs = (currentSecondsLeft % 60).toString().padStart(2, '0');
@@ -259,7 +263,7 @@ module.exports = class RXJXTQuestDashboard {
         }, 1000);
 
         injectLiquidUI();
-        rxjxtLog("RXJXT V8 ENGINE INITIALIZED...", "brand");
+        rxjxtLog("RXJXT V8.1 ENGINE INITIALIZED...", "brand");
 
         let isGrinding = false;
 
@@ -279,8 +283,9 @@ module.exports = class RXJXTQuestDashboard {
                 const supportedTasks = ["WATCH_VIDEO", "PLAY_ON_DESKTOP", "STREAM_ON_DESKTOP", "PLAY_ACTIVITY", "WATCH_VIDEO_ON_MOBILE"];
 
                 const checkAndStart = () => {
+                    if (!window.rxjxtGrindToggle) return; // Exit if toggle is OFF
                     if (isGrinding) return;
-                    if(!QuestsStore) { rxjxtLog("Discord Core Not Ready", "warn"); return; }
+                    if (!QuestsStore) { rxjxtLog("Discord Core Not Ready", "warn"); return; }
 
                     const allQuests = [...QuestsStore.quests.values()].filter(x => new Date(x.config.expiresAt).getTime() > Date.now() && supportedTasks.find(y => Object.keys((x.config.taskConfig ?? x.config.taskConfigV2).tasks).includes(y)));
                     
@@ -300,7 +305,7 @@ module.exports = class RXJXTQuestDashboard {
                         
                         if (!window.questWatcher) {
                             rxjxtLog("WAITING FOR QUEST ACCEPTANCE...", "warn");
-                            window.questWatcher = setInterval(() => { if (!isGrinding) checkAndStart(); }, 3000);
+                            window.questWatcher = setInterval(() => { if (!isGrinding && window.rxjxtGrindToggle) checkAndStart(); }, 3000);
                         }
                     } 
                     else {
@@ -308,6 +313,21 @@ module.exports = class RXJXTQuestDashboard {
                         showPopup("NO QUESTS", "Sab quests complete ho chuki hain ya koi nayi available nahi hai.", "REFRESH", () => checkAndStart());
                     }
                 };
+
+                // TOGGLE LISTENER
+                const toggleInput = document.getElementById('rxjxt-grind-toggle');
+                if (toggleInput) {
+                    toggleInput.addEventListener('change', (e) => {
+                        window.rxjxtGrindToggle = e.target.checked;
+                        if (window.rxjxtGrindToggle) {
+                            rxjxtLog("GRINDING ENABLED", "success");
+                            checkAndStart();
+                        } else {
+                            rxjxtLog("GRINDING PAUSED", "warn");
+                            updateUI("PAUSED", 0, 100, "SYSTEM IDLE");
+                        }
+                    });
+                }
 
                 const doJob = async (questsArray, api, RunningGameStore, FluxDispatcher, ApplicationStreamingStore, ChannelStore, GuildChannelStore) => {
                     const quest = questsArray.pop();
@@ -340,6 +360,7 @@ module.exports = class RXJXTQuestDashboard {
                         let fn = async () => {
                             rxjxtLog(`SPOOFING VIDEO METRICS...`, "warn");
                             while(true) {
+                                if (!window.rxjxtGrindToggle) { isGrinding = false; return; } // Pause Check
                                 const remaining = Math.min(speed, secondsNeeded - secondsDone);
                                 await new Promise(resolve => setTimeout(resolve, remaining * 1000));
                                 const timestamp = secondsDone + speed;
@@ -349,7 +370,7 @@ module.exports = class RXJXTQuestDashboard {
                                 updateUI(questName, secondsDone, secondsNeeded, "IN PROGRESS...");
                                 if(timestamp >= secondsNeeded) break;
                             }
-                            if(!completed) await api.post({url: `/quests/${quest.id}/video-progress`, body: {timestamp: secondsNeeded}});
+                            if(!completed && window.rxjxtGrindToggle) await api.post({url: `/quests/${quest.id}/video-progress`, body: {timestamp: secondsNeeded}});
                             finishQuest();
                         }
                         fn();
@@ -367,6 +388,12 @@ module.exports = class RXJXTQuestDashboard {
                             rxjxtLog(`INJECTED GAME PID: ${applicationName}`, "warn");
 
                             let fn = data => {
+                                if (!window.rxjxtGrindToggle) { // Pause Check Cleanup
+                                    FluxDispatcher.unsubscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn);
+                                    RunningGameStore.getRunningGames = realGetRunningGames; RunningGameStore.getGameForPID = realGetGameForPID;
+                                    FluxDispatcher.dispatch({type: "RUNNING_GAMES_CHANGE", removed: [fakeGame], added: [], games: []});
+                                    isGrinding = false; return;
+                                }
                                 let progress = quest.config.configVersion === 1 ? data.userStatus.streamProgressSeconds : Math.floor(data.userStatus.progress.PLAY_ON_DESKTOP.value);
                                 updateUI(questName, progress, secondsNeeded, "GRINDING...");
                                 if(progress >= secondsNeeded) {
@@ -385,6 +412,11 @@ module.exports = class RXJXTQuestDashboard {
                         rxjxtLog(`SPOOFING STREAM METADATA: ${applicationName}`, "warn");
 
                         let fn = data => {
+                            if (!window.rxjxtGrindToggle) { // Pause Check Cleanup
+                                FluxDispatcher.unsubscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn);
+                                ApplicationStreamingStore.getStreamerActiveStreamMetadata = realFunc;
+                                isGrinding = false; return;
+                            }
                             let progress = quest.config.configVersion === 1 ? data.userStatus.streamProgressSeconds : Math.floor(data.userStatus.progress.STREAM_ON_DESKTOP.value);
                             updateUI(questName, progress, secondsNeeded, "STREAMING...");
                             if(progress >= secondsNeeded) {
@@ -402,12 +434,13 @@ module.exports = class RXJXTQuestDashboard {
                         let fn = async () => {
                             rxjxtLog(`FORGING ACTIVITY SYNC...`, "warn");
                             while(true) {
+                                if (!window.rxjxtGrindToggle) { isGrinding = false; return; } // Pause Check
                                 const res = await api.post({url: `/quests/${quest.id}/heartbeat`, body: {stream_key: streamKey, terminal: false}});
                                 const progress = res.body.progress.PLAY_ACTIVITY.value;
                                 updateUI(questName, progress, secondsNeeded, "ACTIVITY SYNC...");
                                 await new Promise(resolve => setTimeout(resolve, 20 * 1000));
                                 if(progress >= secondsNeeded) {
-                                    await api.post({url: `/quests/${quest.id}/heartbeat`, body: {stream_key: streamKey, terminal: true}});
+                                    if (window.rxjxtGrindToggle) await api.post({url: `/quests/${quest.id}/heartbeat`, body: {stream_key: streamKey, terminal: true}});
                                     break;
                                 }
                             }
@@ -417,7 +450,6 @@ module.exports = class RXJXTQuestDashboard {
                     }
                 };
 
-                checkAndStart();
             } catch (err) {
                 isGrinding = false;
                 rxjxtLog("SYSTEM INITIALIZING...", "warn");
@@ -433,6 +465,7 @@ module.exports = class RXJXTQuestDashboard {
         if (window.questWatcher) clearInterval(window.questWatcher);
         if (window.rxjxtToolbarInterval) clearInterval(window.rxjxtToolbarInterval);
         window.rxjxtEngineRunning = false;
+        window.rxjxtGrindToggle = false;
         
         const ui = document.getElementById('rxjxt-liquid-ui');
         if (ui) ui.remove();
