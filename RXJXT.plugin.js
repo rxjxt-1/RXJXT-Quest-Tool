@@ -1,8 +1,8 @@
 /**
  * @name RXJXTQuestDashboard
  * @author RXJXT
- * @description RXJXT Liquid Hub: iOS Glass UI (Font & Shadow Fixed)
- * @version 12.3.0
+ * @description RXJXT Liquid Hub: Auto-Stop Logic + Progress Ring Restored
+ * @version 12.4.0
  * @updateUrl https://raw.githubusercontent.com/rxjxt-1/RXJXT-Quest-Tool/main/RXJXT.plugin.js
  */
 
@@ -19,9 +19,10 @@ module.exports = class RXJXTQuestDashboard {
         window.rxjxtEngineRunning = true;
         
         window.rxjxtGrindToggle = false; window.rxjxtMode = 'STEALTH'; window.rxjxtVideoApproval = false; window.rxjxtDeafenToggle = false; 
+        window.rxjxtCurrentProg = 0; window.rxjxtUpdateAvailable = false;
         console.clear();
         
-        const RXJXT_HUB_VER = "12.3.0";
+        const RXJXT_HUB_VER = "12.4.0";
         const RXJXT_REPO_BASE = "https://raw.githubusercontent.com/rxjxt-1/RXJXT-Quest-Tool/main/";
         const RXJXT_HUB_URL = RXJXT_REPO_BASE + "RXJXT.plugin.js";
         const RXJXT_QUEST_URL = RXJXT_REPO_BASE + "QuestEngine.js";
@@ -29,7 +30,6 @@ module.exports = class RXJXTQuestDashboard {
 
         // TERA LATEST CUSTOM LOGO
         const CUSTOM_LOGO_URL = "https://img.sanishtech.com/u/6e7fd950a1a68f128951c6eaab6ec996.png"; 
-        
         const DEVELOPER_ID = "YOUR_ID_HERE"; 
 
         const rxjxtLog = (app, msg, type = "info") => {
@@ -56,7 +56,6 @@ module.exports = class RXJXTQuestDashboard {
                 .liquid-panel { transform-origin: calc(100% - 15px) -20px; transform: scale(0) translate(20px, -20px); opacity: 0; border-radius: 50px; pointer-events: none; transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, border-radius 0.4s ease, box-shadow 0.5s ease; }
                 .liquid-panel.rxjxt-open { opacity: 1; transform: scale(1) translate(0, 0); pointer-events: auto; }
                 
-                /* Fixed Tight Shadow */
                 .ios-glass { background: rgba(20, 20, 22, 0.65); backdrop-filter: blur(30px) saturate(200%); -webkit-backdrop-filter: blur(30px) saturate(200%); border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 10px 25px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255, 255, 255, 0.1); }
                 
                 #rxjxt-mini-menu.rxjxt-open { border-radius: 100px; display: flex; flex-direction: row; align-items: center; padding: 6px; gap: 6px; }
@@ -66,20 +65,15 @@ module.exports = class RXJXTQuestDashboard {
                 
                 .rxjxt-panel { width: 360px; position: absolute; right: 0; top: 0; } .rxjxt-panel.rxjxt-open { border-radius: 24px; position: relative; }
                 
-                /* Toned Down Panel Shadows */
                 .theme-stealth { box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255, 255, 255, 0.08); border-color: rgba(10, 132, 255, 0.3); }
                 .theme-stealth .rxjxt-brand-name, .theme-stealth .rxjxt-live-status { color: #0A84FF; text-shadow: none; } .theme-stealth input:checked + .rxjxt-slider { background-color: #0A84FF; }
-                
                 .theme-rage { box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255, 255, 255, 0.08); border-color: rgba(255, 69, 58, 0.3); }
                 .theme-rage .rxjxt-brand-name, .theme-rage .rxjxt-live-status { color: #FF453A; text-shadow: none; } .theme-rage input:checked + .rxjxt-slider { background-color: #FF453A; }
-                
                 .theme-deafen-off { box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.1); }
                 .theme-deafen-off .rxjxt-brand-name, .theme-deafen-off .rxjxt-live-status { color: rgba(255,255,255,0.7); text-shadow: none; }
-                
                 .theme-deafen-on { box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255, 255, 255, 0.08); border-color: rgba(255, 69, 58, 0.3); }
                 .theme-deafen-on .rxjxt-brand-name, .theme-deafen-on .rxjxt-live-status { color: #FF453A; text-shadow: none; } .theme-deafen-on input:checked + .rxjxt-slider { background-color: #FF453A; }
 
-                /* Thick & Clean Typography */
                 .rxjxt-header { padding: 18px 22px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
                 .rxjxt-brand-name { font-size: 16px; font-weight: 700; letter-spacing: 1px; transition: color 0.3s ease; } .rxjxt-controls { display: flex; align-items: center; gap: 12px; }
                 .rxjxt-mode-btn { padding: 4px 10px; font-size: 11px; font-weight: 600; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05); border-radius: 100px; cursor: pointer; color: rgba(255,255,255,0.8); transition: 0.2s; letter-spacing: 0.5px; }
@@ -104,24 +98,24 @@ module.exports = class RXJXTQuestDashboard {
                 .rxjxt-terminal-container { background: rgba(0, 0, 0, 0.2); border-radius: 12px; padding: 12px; height: 100px; overflow-y: auto; font-family: Consolas, monospace; font-size: 11px; font-weight: 500; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 15px; }
                 .rxjxt-terminal-container::-webkit-scrollbar { width: 4px; } .rxjxt-terminal-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
 
-                /* Developer Info Pill */
                 .rxjxt-info-pill { display: flex; align-items: center; justify-content: center; gap: 6px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 100px; padding: 6px 12px; font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.6); }
                 .rxjxt-info-pill svg { width: 12px; height: 12px; fill: rgba(255,255,255,0.6); }
                 .rxjxt-info-pill a { color: #0A84FF; text-decoration: none; transition: 0.2s; }
                 .rxjxt-info-pill a:hover { filter: brightness(1.3); text-decoration: underline; }
 
-                /* TOOLBAR LOGO & BLINKING UPDATE STATE */
+                /* TOOLBAR LOGO & PROGRESS RING */
                 #rxjxt-header-btn { margin: 0 12px !important; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
-                #rxjxt-header-ring { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.05); display: flex; justify-content: center; align-items: center; transition: all 0.3s ease; border: 1px solid rgba(255,255,255,0.08); overflow: hidden; }
-                #rxjxt-header-inner { width: 26px; height: 26px; background: transparent; border-radius: 50%; display: flex; justify-content: center; align-items: center; transition: all 0.3s ease; }
+                #rxjxt-header-ring { width: 34px; height: 34px; border-radius: 50%; display: flex; justify-content: center; align-items: center; transition: all 0.3s ease; border: 1px solid rgba(255,255,255,0.08); overflow: hidden; }
+                #rxjxt-header-inner { width: 26px; height: 26px; background: #1c1c1e; border-radius: 50%; display: flex; justify-content: center; align-items: center; transition: all 0.3s ease; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
                 .rxjxt-custom-logo { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; transition: 0.3s ease; }
                 
-                #rxjxt-header-btn:hover #rxjxt-header-ring { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
-                #rxjxt-header-btn.rxjxt-pressed #rxjxt-header-ring { transform: scale(0.9); background: rgba(0,0,0,0.5); box-shadow: inset 0 2px 5px rgba(0,0,0,0.5); border-color: transparent; }
+                #rxjxt-header-btn:hover #rxjxt-header-inner { transform: scale(1.1); }
+                #rxjxt-header-btn.rxjxt-pressed #rxjxt-header-inner { transform: scale(0.85); box-shadow: inset 0 2px 5px rgba(0,0,0,0.8); }
                 #rxjxt-header-btn.rxjxt-pressed .rxjxt-custom-logo { opacity: 0.6; transform: scale(0.9); }
 
+                /* BLINKING UPDATE LOGIC OVERRIDE */
                 .rxjxt-update-blink { animation: btn-update-pulse 1.5s infinite cubic-bezier(0.4, 0, 0.6, 1) !important; border-color: #fcee0a !important; }
-                @keyframes btn-update-pulse { 0%, 100% { box-shadow: 0 0 5px rgba(252,238,10,0.2); background: rgba(252,238,10,0.05); } 50% { box-shadow: 0 0 15px rgba(252,238,10,0.6); background: rgba(252,238,10,0.15); } }
+                @keyframes btn-update-pulse { 0%, 100% { box-shadow: 0 0 5px rgba(252,238,10,0.2); } 50% { box-shadow: 0 0 15px rgba(252,238,10,0.8); } }
 
                 #rxjxt-popup { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(15px); z-index: 10; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 30px; box-sizing: border-box; border-radius: 24px; }
                 .rxjxt-popup-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; letter-spacing: 0.5px; } .rxjxt-popup-text { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.7); margin-bottom: 24px; line-height: 1.4; }
@@ -225,11 +219,8 @@ module.exports = class RXJXTQuestDashboard {
                 document.getElementById('rxjxt-quest-dash').className = `liquid-panel ios-glass rxjxt-panel rxjxt-open theme-${window.rxjxtMode.toLowerCase()}`;
                 
                 const qStatusText = document.getElementById('rxjxt-live-status');
-                if(window.rxjxtMode === 'RAGE'){
-                    qStatusText.style.color = "#FF453A";
-                } else {
-                    qStatusText.style.color = "#0A84FF";
-                }
+                if(window.rxjxtMode === 'RAGE'){ qStatusText.style.color = "#FF453A"; } else { qStatusText.style.color = "#0A84FF"; }
+                rxjxtUpdateQuestUI(document.getElementById('rxjxt-current-quest').innerText, window.rxjxtCurrentProg, 100, qStatusText.innerText);
                 rxjxtLog('QUEST', `Mode: ${window.rxjxtMode}`, window.rxjxtMode === 'RAGE' ? "brand" : "info");
             };
 
@@ -249,11 +240,12 @@ module.exports = class RXJXTQuestDashboard {
                 } catch (err) { rxjxtLog('DEAFEN', "Corrupted Engine or Error.", "error"); }
             });
 
-            // HUB UPDATE CHECKER
+            // HUB UPDATE CHECKER (With Permanent Blink Activation)
             fetch(RXJXT_HUB_URL + "?t=" + Date.now(), {cache: "no-store"}).then(res => res.text()).then(code => {
                 let match = code.match(/@version\s+([0-9.]+)/);
                 if(match && match[1] !== RXJXT_HUB_VER) {
-                    const btn = document.getElementById('rxjxt-update-hub'); btn.style.display = 'flex'; document.getElementById('rxjxt-uhub-text').innerText = `v${match[1]}`;
+                    window.rxjxtUpdateAvailable = true; // Triggers blink on redraw
+                    const btn = document.getElementById('rxjxt-update-hub'); btn.style.display = 'flex'; document.getElementById('rxjxt-uhub-text').innerText = `Update v${match[1]}`;
                     
                     const mainRing = document.getElementById('rxjxt-header-ring');
                     if (mainRing) mainRing.classList.add('rxjxt-update-blink');
@@ -282,8 +274,36 @@ module.exports = class RXJXTQuestDashboard {
         const rxjxtUpdateQuestUI = (qName, cur, tot, stat = "Active") => {
             if(!document.getElementById('rxjxt-pct')) return;
             let pct = 0; if (tot > 0) { pct = Math.min(100, Math.floor((cur / tot) * 100)); document.getElementById('rxjxt-bar').style.width = `${pct}%`; document.getElementById('rxjxt-pct').innerText = `${pct}%`; currentSecondsLeft = Math.max(0, tot - cur); }
+            window.rxjxtCurrentProg = pct; // Save progress for redraws
+            
             const statusEl = document.getElementById('rxjxt-live-status'); if(statusEl) statusEl.innerText = stat;
+            
+            // DYNAMIC PROGRESS RING UPDATE
+            const hRing = document.getElementById('rxjxt-header-ring');
+            if (hRing) {
+                hRing.style.setProperty('--rxjxt-prog', `${pct}%`);
+                let rCol = window.rxjxtMode === 'RAGE' ? '#FF453A' : '#0A84FF'; if(pct >= 100) rCol = '#30D158'; if (!window.rxjxtGrindToggle) rCol = 'rgba(255,255,255,0.2)';
+                hRing.style.background = `conic-gradient(${rCol} var(--rxjxt-prog, 0%), rgba(255,255,255,0.05) 0)`;
+            }
         };
+
+        // AUTO-STOP LOGIC (Checks if user disconnects from Voice without turning off Deafen)
+        window.rxjxtVoiceWatcher = setInterval(() => {
+            if (window.rxjxtDeafenToggle) {
+                const deafenBtn = document.querySelector('[aria-label="Deafen"], [aria-label="Undeafen"]');
+                if (!deafenBtn) {
+                    rxjxtLog('DEAFEN', "Voice disconnected. Auto-stopping engine...", "warn");
+                    const toggle = document.getElementById('rxjxt-deafen-toggle');
+                    if (toggle) {
+                        toggle.checked = false;
+                        toggle.dispatchEvent(new Event('change'));
+                    } else {
+                        window.rxjxtDeafenToggle = false;
+                        if(window.rxjxtDeafenEngine) window.rxjxtDeafenEngine.stop(rxjxtLog, () => {});
+                    }
+                }
+            }
+        }, 2000);
 
         window.rxjxtTimer = setInterval(() => {
             if (currentSecondsLeft > 0 && window.rxjxtGrindToggle) {
@@ -298,13 +318,17 @@ module.exports = class RXJXTQuestDashboard {
             if (toolbar && !btn) {
                 btn = document.createElement('div'); btn.id = 'rxjxt-header-btn'; btn.style.cssText = 'display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative;';
                 
+                let rCol = window.rxjxtMode === 'RAGE' ? '#FF453A' : '#0A84FF'; if(window.rxjxtCurrentProg >= 100) rCol = '#30D158'; if (!window.rxjxtGrindToggle) rCol = 'rgba(255,255,255,0.2)';
+                
                 btn.innerHTML = `
-                    <div id="rxjxt-header-ring">
+                    <div id="rxjxt-header-ring" style="--rxjxt-prog: ${window.rxjxtCurrentProg}%; background: conic-gradient(${rCol} var(--rxjxt-prog, 0%), rgba(255,255,255,0.05) 0);">
                         <div id="rxjxt-header-inner">
                             <img src="${CUSTOM_LOGO_URL}" class="rxjxt-custom-logo" alt="RX">
                         </div>
                     </div>
                 `;
+                
+                if (window.rxjxtUpdateAvailable) { btn.querySelector('#rxjxt-header-ring').classList.add('rxjxt-update-blink'); }
                 
                 btn.onclick = (e) => {
                     e.preventDefault(); e.stopPropagation();
@@ -323,6 +347,7 @@ module.exports = class RXJXTQuestDashboard {
     stop() {
         if (window.rxjxtTimer) clearInterval(window.rxjxtTimer);
         if (window.rxjxtToolbarInterval) clearInterval(window.rxjxtToolbarInterval);
+        if (window.rxjxtVoiceWatcher) clearInterval(window.rxjxtVoiceWatcher);
         if (window.rxjxtQuestEngine) window.rxjxtQuestEngine.stop();
         window.rxjxtEngineRunning = false; window.rxjxtGrindToggle = false; window.rxjxtDeafenToggle = false;
         if (window.rxjxtWSHooked && window.rxjxtOriginalWS) { window.WebSocket.prototype.send = window.rxjxtOriginalWS; window.rxjxtWSHooked = false; }
