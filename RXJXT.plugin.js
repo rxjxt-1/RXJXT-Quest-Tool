@@ -1,8 +1,8 @@
 /**
  * @name RXJXTQuestDashboard
  * @author RXJXT
- * @description RXJXT Liquid Hub: Smooth Progress, Deafen VC Fix & Discord Green
- * @version 12.5.0
+ * @description RXJXT Liquid Hub: v13.0.0 Stable Final Release (Auto-Stop, Anti-Glitch, Red/Green Ring)
+ * @version 13.0.0
  * @updateUrl https://raw.githubusercontent.com/rxjxt-1/RXJXT-Quest-Tool/main/RXJXT.plugin.js
  */
 
@@ -22,12 +22,13 @@ module.exports = class RXJXTQuestDashboard {
         window.rxjxtCurrentProg = 0; window.rxjxtTotalSeconds = 0; window.rxjxtCurrentSecondsDone = 0; window.rxjxtUpdateAvailable = false;
         console.clear();
         
-        const RXJXT_HUB_VER = "12.5.0";
+        const RXJXT_HUB_VER = "13.0.0";
         const RXJXT_REPO_BASE = "https://raw.githubusercontent.com/rxjxt-1/RXJXT-Quest-Tool/main/";
         const RXJXT_HUB_URL = RXJXT_REPO_BASE + "RXJXT.plugin.js";
         const RXJXT_QUEST_URL = RXJXT_REPO_BASE + "QuestEngine.js";
         const RXJXT_DEAFEN_URL = RXJXT_REPO_BASE + "DeafenEngine.js";
 
+        // FINAL CUSTOM LOGO
         const CUSTOM_LOGO_URL = "https://img.sanishtech.com/u/6e7fd950a1a68f128951c6eaab6ec996.png"; 
         const DEVELOPER_ID = "YOUR_ID_HERE"; 
 
@@ -49,7 +50,7 @@ module.exports = class RXJXTQuestDashboard {
             if (document.getElementById('rxjxt-liquid-ui')) return;
             const style = document.createElement('style'); style.id = "rxjxt-styles";
             style.innerHTML = `
-                /* Bold Fonts & Clean Shadows */
+                /* iOS Liquid Core */
                 #rxjxt-liquid-ui { position: fixed; top: 65px; right: 15px; z-index: 9999999; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif; color: #fff; pointer-events: none; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
                 
                 .liquid-panel { transform-origin: calc(100% - 15px) -20px; transform: scale(0) translate(20px, -20px); opacity: 0; border-radius: 50px; pointer-events: none; transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, border-radius 0.4s ease, box-shadow 0.5s ease; }
@@ -73,30 +74,33 @@ module.exports = class RXJXTQuestDashboard {
                 .theme-deafen-on { box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255, 255, 255, 0.08); border-color: rgba(255, 69, 58, 0.3); }
                 .theme-deafen-on .rxjxt-brand-name, .theme-deafen-on .rxjxt-live-status { color: #FF453A; text-shadow: none; } 
 
-                .rxjxt-header { padding: 18px 22px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+                /* Z-INDEX FIX: Header is 20, Popup is 10. Header always stays on top! */
+                .rxjxt-header { padding: 18px 22px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.05); position: relative; z-index: 20; }
                 .rxjxt-brand-name { font-size: 16px; font-weight: 700; letter-spacing: 1px; transition: color 0.3s ease; } .rxjxt-controls { display: flex; align-items: center; gap: 12px; }
                 .rxjxt-mode-btn { padding: 4px 10px; font-size: 11px; font-weight: 600; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05); border-radius: 100px; cursor: pointer; color: rgba(255,255,255,0.8); transition: 0.2s; letter-spacing: 0.5px; }
                 .rxjxt-mode-btn:hover { background: rgba(255,255,255,0.1); }
+                
                 .rxjxt-toggle { position: relative; display: inline-block; width: 40px; height: 22px; } .rxjxt-toggle input { opacity: 0; width: 0; height: 0; }
                 .rxjxt-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.2); transition: .3s cubic-bezier(0.25, 1, 0.5, 1); border-radius: 34px; }
                 .rxjxt-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 2px; bottom: 2px; background-color: #fff; transition: .3s cubic-bezier(0.25, 1, 0.5, 1); border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
                 input:checked + .rxjxt-slider:before { transform: translateX(18px); }
+                
+                /* TOGGLE DISCORD GREEN */
                 .theme-stealth input:checked + .rxjxt-slider, .theme-rage input:checked + .rxjxt-slider { background-color: #23a559; }
                 .theme-deafen-on input:checked + .rxjxt-slider { background-color: #FF453A; }
 
                 .rxjxt-close-btn { width: 26px; height: 26px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.8); transition: 0.2s; border: 1px solid rgba(255,255,255,0.05); }
                 .rxjxt-close-btn:hover { background: rgba(255,255,255,0.2); color: #fff; transform: scale(1.1); }
                 
-                .rxjxt-body { padding: 22px; } 
+                .rxjxt-body { padding: 22px; position: relative; z-index: 5; } 
                 .rxjxt-status-box { display: flex; justify-content: space-between; margin-bottom: 16px; font-size: 12px; font-weight: 700; }
                 .rxjxt-eta { color: rgba(255,255,255,0.6); font-family: monospace; font-size: 13px; } 
                 .rxjxt-label { font-size: 11px; color: rgba(255,255,255,0.5); text-transform: uppercase; font-weight: 700; margin-bottom: 6px; display: block; letter-spacing: 0.5px; }
                 .rxjxt-value { font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.9); margin-bottom: 22px; line-height: 1.5; word-wrap: break-word; }
                 
                 .rxjxt-progress-wrapper { width: 100%; height: 6px; background: rgba(0,0,0,0.4); border-radius: 100px; margin-bottom: 22px; overflow: hidden; }
-                
-                /* Progress bar is now DISCORD GREEN */
-                .rxjxt-progress-fill { height: 100%; width: 0%; background: #23a559; box-shadow: 0 0 10px rgba(35, 165, 89, 0.4); border-radius: 100px; }
+                /* PROGRESS BAR DISCORD GREEN */
+                .rxjxt-progress-fill { height: 100%; width: 0%; background: #23a559; box-shadow: 0 0 10px rgba(35, 165, 89, 0.4); border-radius: 100px; transition: width 0.4s ease; }
                 
                 .rxjxt-terminal-container { background: rgba(0, 0, 0, 0.2); border-radius: 12px; padding: 12px; height: 100px; overflow-y: auto; font-family: Consolas, monospace; font-size: 11px; font-weight: 500; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 15px; }
                 .rxjxt-terminal-container::-webkit-scrollbar { width: 4px; } .rxjxt-terminal-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
@@ -106,23 +110,22 @@ module.exports = class RXJXTQuestDashboard {
                 .rxjxt-info-pill a { color: #0A84FF; text-decoration: none; transition: 0.2s; }
                 .rxjxt-info-pill a:hover { filter: brightness(1.3); text-decoration: underline; }
 
-                /* GLITCH-FREE TOOLBAR RING */
+                /* GLITCH-FREE PROGRESS RING */
                 #rxjxt-header-btn { margin: 0 12px !important; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
                 
-                /* Removed background transition to prevent conic-gradient bleed bug */
-                #rxjxt-header-ring { width: 34px; height: 34px; border-radius: 50%; display: flex; justify-content: center; align-items: center; border: 1px solid rgba(255,255,255,0.08); overflow: hidden; }
-                
-                #rxjxt-header-inner { width: 26px; height: 26px; background: #1c1c1e; border-radius: 50%; display: flex; justify-content: center; align-items: center; transition: all 0.3s ease; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+                #rxjxt-header-ring { width: 34px; height: 34px; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08); overflow: hidden; transform: translateZ(0); }
+                #rxjxt-header-inner { width: 28px; height: 28px; background: #1c1c1e; border-radius: 50%; display: flex; justify-content: center; align-items: center; transition: all 0.3s ease; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.5); z-index: 2; }
                 .rxjxt-custom-logo { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; transition: 0.3s ease; }
                 
                 #rxjxt-header-btn:hover #rxjxt-header-inner { transform: scale(1.1); }
                 #rxjxt-header-btn.rxjxt-pressed #rxjxt-header-inner { transform: scale(0.85); box-shadow: inset 0 2px 5px rgba(0,0,0,0.8); }
                 #rxjxt-header-btn.rxjxt-pressed .rxjxt-custom-logo { opacity: 0.6; transform: scale(0.9); }
 
-                .rxjxt-update-blink { animation: btn-update-pulse 1.5s infinite cubic-bezier(0.4, 0, 0.6, 1) !important; border-color: #fcee0a !important; }
-                @keyframes btn-update-pulse { 0%, 100% { box-shadow: 0 0 5px rgba(252,238,10,0.2); } 50% { box-shadow: 0 0 15px rgba(252,238,10,0.8); } }
+                .rxjxt-update-blink { animation: btn-update-pulse 1.5s infinite cubic-bezier(0.4, 0, 0.6, 1) !important; box-shadow: inset 0 0 0 1px #fcee0a !important; }
+                @keyframes btn-update-pulse { 0%, 100% { box-shadow: 0 0 5px rgba(252,238,10,0.2), inset 0 0 0 1px rgba(252,238,10,0.5); } 50% { box-shadow: 0 0 15px rgba(252,238,10,0.8), inset 0 0 0 1px #fcee0a; } }
 
-                #rxjxt-popup { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(15px); z-index: 10; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 30px; box-sizing: border-box; border-radius: 24px; }
+                /* POPUP PUSHED BELOW HEADER (ACCOUNT SWITCH FIX) */
+                #rxjxt-popup { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 10; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 30px; box-sizing: border-box; border-radius: 24px; padding-top: 65px; }
                 .rxjxt-popup-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; letter-spacing: 0.5px; } .rxjxt-popup-text { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.7); margin-bottom: 24px; line-height: 1.4; }
                 .rxjxt-popup-actions { display: flex; gap: 12px; } .rxjxt-action-btn { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 8px 20px; font-weight: 600; cursor: pointer; border-radius: 100px; font-size: 13px; transition: 0.2s; }
                 .rxjxt-action-btn.primary { background: #0A84FF; border-color: #0A84FF; } .rxjxt-action-btn:hover { filter: brightness(1.2); transform: scale(1.05); }
@@ -133,7 +136,6 @@ module.exports = class RXJXTQuestDashboard {
 
             document.body.insertAdjacentHTML('beforeend', `
                 <div id="rxjxt-liquid-ui">
-                    <!-- PILL HUB -->
                     <div id="rxjxt-mini-menu" class="liquid-panel ios-glass">
                         <div class="rxjxt-hub-item" id="rxjxt-menu-quest" style="color: #0A84FF;">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4-3c-.83 0-1.5-.67-1.5-1.5S18.67 9 19.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
@@ -143,13 +145,13 @@ module.exports = class RXJXTQuestDashboard {
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3a9 9 0 0 0-9 9v7c0 1.1.9 2 2 2h4v-8H5v-1c0-3.87 3.13-7 7-7s7 3.13 7 7v1h-4v8h4c1.1 0 2-.9 2-2v-7a9 9 0 0 0-9-9z"/></svg>
                             <span>Deafen</span>
                         </div>
+                        
                         <div class="rxjxt-hub-item" id="rxjxt-update-hub" style="display: none; border-color: rgba(50,173,230,0.3); background: rgba(50,173,230,0.1);">
                             <svg viewBox="0 0 24 24" class="upd-icon" fill="none" stroke="currentColor"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.36 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
                             <span id="rxjxt-uhub-text" style="color: #32ADE6;">Update</span>
                         </div>
                     </div>
 
-                    <!-- QUEST DASHBOARD -->
                     <div id="rxjxt-quest-dash" class="liquid-panel ios-glass theme-stealth rxjxt-panel">
                         <div id="rxjxt-popup"><div class="rxjxt-popup-title" id="rxjxt-popup-title">Confirm</div><div class="rxjxt-popup-text" id="rxjxt-popup-text">Message</div><div class="rxjxt-popup-actions"><button class="rxjxt-action-btn primary" id="rxjxt-popup-btn-1">Confirm</button><button class="rxjxt-action-btn" id="rxjxt-popup-btn-2" style="display:none;">Cancel</button></div></div>
                         <div class="rxjxt-header"><div class="rxjxt-brand-name">Quest Dashboard</div><div class="rxjxt-controls"><button class="rxjxt-mode-btn" id="rxjxt-mode-btn">Stealth</button><label class="rxjxt-toggle"><input type="checkbox" id="rxjxt-grind-toggle"><span class="rxjxt-slider"></span></label><div class="rxjxt-close-btn rxjxt-x-btn">✕</div></div></div>
@@ -163,7 +165,6 @@ module.exports = class RXJXTQuestDashboard {
                         </div>
                     </div>
 
-                    <!-- DEAFEN DASHBOARD -->
                     <div id="rxjxt-deafen-dash" class="liquid-panel ios-glass theme-deafen-off rxjxt-panel">
                         <div class="rxjxt-header"><div class="rxjxt-brand-name">Deafen Dashboard</div><div class="rxjxt-controls"><label class="rxjxt-toggle"><input type="checkbox" id="rxjxt-deafen-toggle"><span class="rxjxt-slider"></span></label><div class="rxjxt-close-btn rxjxt-x-btn">✕</div></div></div>
                         <div class="rxjxt-body">
@@ -201,7 +202,16 @@ module.exports = class RXJXTQuestDashboard {
             const questInput = document.getElementById('rxjxt-grind-toggle');
             questInput.addEventListener('change', async (e) => {
                 window.rxjxtGrindToggle = e.target.checked;
-                if (!window.rxjxtGrindToggle) { rxjxtLog('QUEST', "Paused.", "warn"); rxjxtUpdateQuestUI("Idle", 0, 100, "Idle"); if(window.rxjxtQuestEngine) window.rxjxtQuestEngine.stop(); return; }
+                
+                // Account Switch Popup Fix: Hide popup immediately on manual OFF toggle
+                if (!window.rxjxtGrindToggle) { 
+                    rxjxtLog('QUEST', "Paused.", "warn"); 
+                    rxjxtUpdateQuestUI("Idle", 0, 100, "Idle"); 
+                    if(window.rxjxtQuestEngine) window.rxjxtQuestEngine.stop(); 
+                    document.getElementById('rxjxt-popup').style.display = 'none';
+                    return; 
+                }
+                
                 let savedCode = await rxjxtLoadEngine(RXJXT_QUEST_URL, "QuestCode", "QuestVersion", "Quest Engine");
                 if (!savedCode) { e.target.checked = false; window.rxjxtGrindToggle = false; return; }
                 try {
@@ -321,11 +331,6 @@ module.exports = class RXJXTQuestDashboard {
                 // Update UI visually
                 const pText = document.getElementById('rxjxt-pct'); if(pText) pText.innerText = `${Math.floor(pct)}%`;
                 const pBar = document.getElementById('rxjxt-bar'); if(pBar) pBar.style.width = `${pct}%`;
-                const hRing = document.getElementById('rxjxt-header-ring');
-                if (hRing) {
-                    // Exact stops in conic-gradient prevent bleeding
-                    hRing.style.background = `conic-gradient(#23a559 ${pct}%, rgba(255,255,255,0.05) ${pct}%)`;
-                }
 
                 let mins = Math.floor(currentSecondsLeft / 60).toString().padStart(2, '0'); let secs = (currentSecondsLeft % 60).toString().padStart(2, '0');
                 const etaEl = document.getElementById('rxjxt-eta'); if(etaEl) etaEl.innerText = `${mins}:${secs}`;
@@ -335,21 +340,11 @@ module.exports = class RXJXTQuestDashboard {
         const rxjxtEnsureIcon = () => {
             if (!window.rxjxtEngineRunning) return;
             let btn = document.getElementById('rxjxt-header-btn'); const toolbar = document.querySelector('section [class*="toolbar_"]');
+            
             if (toolbar && !btn) {
                 btn = document.createElement('div'); btn.id = 'rxjxt-header-btn'; btn.style.cssText = 'display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative;';
-                
-                let rCol = window.rxjxtGrindToggle ? '#23a559' : 'rgba(255,255,255,0.05)';
-                let bgStyle = window.rxjxtGrindToggle ? `conic-gradient(${rCol} ${window.rxjxtCurrentProg}%, rgba(255,255,255,0.05) ${window.rxjxtCurrentProg}%)` : `rgba(255,255,255,0.05)`;
-                
-                btn.innerHTML = `
-                    <div id="rxjxt-header-ring" style="background: ${bgStyle};">
-                        <div id="rxjxt-header-inner">
-                            <img src="${CUSTOM_LOGO_URL}" class="rxjxt-custom-logo" alt="RX">
-                        </div>
-                    </div>
-                `;
-                
-                if (window.rxjxtUpdateAvailable) { btn.querySelector('#rxjxt-header-ring').classList.add('rxjxt-update-blink'); }
+                btn.innerHTML = `<div id="rxjxt-header-ring"><div id="rxjxt-header-inner"><img src="${CUSTOM_LOGO_URL}" class="rxjxt-custom-logo" alt="RX"></div></div>`;
+                toolbar.insertBefore(btn, toolbar.firstChild);
                 
                 btn.onclick = (e) => {
                     e.preventDefault(); e.stopPropagation();
@@ -358,11 +353,25 @@ module.exports = class RXJXTQuestDashboard {
                         qDash.classList.remove('rxjxt-open'); dDash.classList.remove('rxjxt-open'); mMenu.classList.remove('rxjxt-open'); btn.classList.remove('rxjxt-pressed');
                     } else { mMenu.classList.add('rxjxt-open'); btn.classList.add('rxjxt-pressed'); }
                 };
-                toolbar.insertBefore(btn, toolbar.firstChild);
+            }
+
+            // DYNAMIC PROGRESS RING UPDATE (GLITCH FREE)
+            if (btn) {
+                const hRing = document.getElementById('rxjxt-header-ring');
+                if (hRing) {
+                    let rCol = window.rxjxtGrindToggle ? '#23a559' : '#FF453A'; 
+                    let pct = window.rxjxtGrindToggle ? window.rxjxtCurrentProg : 100;
+                    
+                    // The transparent masking trick completely removes the pixel bleeding logic
+                    hRing.style.backgroundImage = `conic-gradient(${rCol} 0%, ${rCol} ${pct}%, transparent ${pct}%, transparent 100%)`;
+                    hRing.style.backgroundColor = `rgba(255,255,255,0.05)`;
+                    
+                    if (window.rxjxtUpdateAvailable) { hRing.classList.add('rxjxt-update-blink'); }
+                }
             }
         };
         window.rxjxtToolbarInterval = setInterval(rxjxtEnsureIcon, 1000);
-        rxjxtInjectUI(); rxjxtLog('HUB', "Ultimate Liquid Shell Loaded.", "brand");
+        rxjxtInjectUI(); rxjxtLog('HUB', "v13.0.0 Stable Build Loaded.", "brand");
     }
 
     stop() {
