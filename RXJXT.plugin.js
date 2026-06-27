@@ -1,8 +1,8 @@
 /**
  * @name RXJXTQuestDashboard
  * @author RXJXT
- * @description RXJXT Liquid Hub: iOS Minimalist Glass UI
- * @version 12.1.0
+ * @description RXJXT Liquid Hub: iOS Minimalist Glass UI (UI Fixes & Custom Logo)
+ * @version 12.2.0
  * @updateUrl https://raw.githubusercontent.com/rxjxt-1/RXJXT-Quest-Tool/main/RXJXT.plugin.js
  */
 
@@ -21,12 +21,15 @@ module.exports = class RXJXTQuestDashboard {
         window.rxjxtGrindToggle = false; window.rxjxtMode = 'STEALTH'; window.rxjxtVideoApproval = false; window.rxjxtDeafenToggle = false; 
         console.clear();
         
-        const RXJXT_HUB_VER = "12.1.0";
+        const RXJXT_HUB_VER = "12.2.0";
         const RXJXT_REPO_BASE = "https://raw.githubusercontent.com/rxjxt-1/RXJXT-Quest-Tool/main/";
         const RXJXT_HUB_URL = RXJXT_REPO_BASE + "RXJXT.plugin.js";
         const RXJXT_QUEST_URL = RXJXT_REPO_BASE + "QuestEngine.js";
         const RXJXT_DEAFEN_URL = RXJXT_REPO_BASE + "DeafenEngine.js";
 
+        // TERA NAYA CUSTOM LOGO (Sanishtech)
+        const CUSTOM_LOGO_URL = "https://img.sanishtech.com/u/f6ea81c20137c5a92fc96faddbb5dda2.png"; 
+        
         // APP DEVELOPER ID FOR HOTLINK (Replace YOUR_ID_HERE with your 18-digit Discord ID)
         const DEVELOPER_ID = "YOUR_ID_HERE"; 
 
@@ -106,19 +109,18 @@ module.exports = class RXJXTQuestDashboard {
                 .rxjxt-info-pill a { color: #0A84FF; text-decoration: none; font-weight: 400; transition: 0.2s; }
                 .rxjxt-info-pill a:hover { filter: brightness(1.3); text-decoration: underline; }
 
-                /* TOOLBAR SVG LOGO & BLINKING UPDATE STATE */
+                /* TOOLBAR LOGO & BLINKING UPDATE STATE */
                 #rxjxt-header-btn { margin: 0 12px !important; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
-                #rxjxt-header-ring { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.05); display: flex; justify-content: center; align-items: center; transition: all 0.3s ease; border: 1px solid rgba(255,255,255,0.08); }
+                #rxjxt-header-ring { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.05); display: flex; justify-content: center; align-items: center; transition: all 0.3s ease; border: 1px solid rgba(255,255,255,0.08); overflow: hidden; }
                 #rxjxt-header-inner { width: 26px; height: 26px; background: transparent; border-radius: 50%; display: flex; justify-content: center; align-items: center; transition: all 0.3s ease; }
-                .rxjxt-svg-logo { width: 16px; height: 16px; fill: none; stroke: rgba(255,255,255,0.8); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; transition: 0.3s ease; }
+                .rxjxt-custom-logo { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; transition: 0.3s ease; }
                 
                 #rxjxt-header-btn:hover #rxjxt-header-ring { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
                 #rxjxt-header-btn.rxjxt-pressed #rxjxt-header-ring { transform: scale(0.9); background: rgba(0,0,0,0.5); box-shadow: inset 0 2px 5px rgba(0,0,0,0.5); border-color: transparent; }
-                #rxjxt-header-btn.rxjxt-pressed .rxjxt-svg-logo { stroke: rgba(255,255,255,0.4); transform: scale(0.9); }
+                #rxjxt-header-btn.rxjxt-pressed .rxjxt-custom-logo { opacity: 0.6; transform: scale(0.9); }
 
                 /* BLINKING UPDATE ANIMATION FOR TOOLBAR ICON */
                 .rxjxt-update-blink { animation: btn-update-pulse 1.5s infinite cubic-bezier(0.4, 0, 0.6, 1) !important; border-color: #fcee0a !important; }
-                .rxjxt-update-blink .rxjxt-svg-logo { stroke: #fcee0a !important; }
                 @keyframes btn-update-pulse { 0%, 100% { box-shadow: 0 0 5px rgba(252,238,10,0.2); background: rgba(252,238,10,0.05); } 50% { box-shadow: 0 0 15px rgba(252,238,10,0.6); background: rgba(252,238,10,0.15); } }
 
                 #rxjxt-popup { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(15px); z-index: 10; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 30px; box-sizing: border-box; border-radius: 24px; }
@@ -142,9 +144,9 @@ module.exports = class RXJXTQuestDashboard {
                             <span>Deafen</span>
                         </div>
                         
-                        <div class="rxjxt-menu-item" id="rxjxt-update-hub" style="display: none; border-color: rgba(50,173,230,0.2);">
+                        <div class="rxjxt-hub-item" id="rxjxt-update-hub" style="display: none; border-color: rgba(50,173,230,0.3); background: rgba(50,173,230,0.1);">
                             <svg viewBox="0 0 24 24" class="upd-icon" fill="none" stroke="currentColor"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.36 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
-                            <span id="rxjxt-uhub-text">Hub</span>
+                            <span id="rxjxt-uhub-text" style="color: #32ADE6; font-weight: 400;">Update</span>
                         </div>
                     </div>
 
@@ -221,6 +223,13 @@ module.exports = class RXJXTQuestDashboard {
             document.getElementById('rxjxt-mode-btn').onclick = () => {
                 window.rxjxtMode = window.rxjxtMode === 'STEALTH' ? 'RAGE' : 'STEALTH'; document.getElementById('rxjxt-mode-btn').innerText = window.rxjxtMode === 'RAGE' ? 'Rage' : 'Stealth';
                 document.getElementById('rxjxt-quest-dash').className = `liquid-panel ios-glass rxjxt-panel rxjxt-open theme-${window.rxjxtMode.toLowerCase()}`;
+                
+                const qStatusText = document.getElementById('rxjxt-live-status');
+                if(window.rxjxtMode === 'RAGE'){
+                    qStatusText.style.color = "#FF453A";
+                } else {
+                    qStatusText.style.color = "#0A84FF";
+                }
                 rxjxtLog('QUEST', `Mode: ${window.rxjxtMode}`, window.rxjxtMode === 'RAGE' ? "brand" : "info");
             };
 
@@ -244,7 +253,7 @@ module.exports = class RXJXTQuestDashboard {
             fetch(RXJXT_HUB_URL + "?t=" + Date.now(), {cache: "no-store"}).then(res => res.text()).then(code => {
                 let match = code.match(/@version\s+([0-9.]+)/);
                 if(match && match[1] !== RXJXT_HUB_VER) {
-                    const btn = document.getElementById('rxjxt-update-hub'); btn.style.display = 'flex'; document.getElementById('rxjxt-uhub-text').innerText = `Update v${match[1]}`;
+                    const btn = document.getElementById('rxjxt-update-hub'); btn.style.display = 'flex'; document.getElementById('rxjxt-uhub-text').innerText = `v${match[1]}`;
                     
                     // Trigger Blinking Toolbar Icon
                     const mainRing = document.getElementById('rxjxt-header-ring');
@@ -290,11 +299,11 @@ module.exports = class RXJXTQuestDashboard {
             if (toolbar && !btn) {
                 btn = document.createElement('div'); btn.id = 'rxjxt-header-btn'; btn.style.cssText = 'display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative;';
                 
-                // FALLBACK SVG LOGO (Fixes Discord CDN Expiry Issue)
+                // IMAGE TAG FOR CUSTOM LOGO
                 btn.innerHTML = `
                     <div id="rxjxt-header-ring">
                         <div id="rxjxt-header-inner">
-                            <svg class="rxjxt-svg-logo" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                            <img src="${CUSTOM_LOGO_URL}" class="rxjxt-custom-logo" alt="RX">
                         </div>
                     </div>
                 `;
