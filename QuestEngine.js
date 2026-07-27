@@ -1,7 +1,7 @@
 /**
  * @name RXJXT-Quest-Engine
- * @version 2.0.0
- * @description Upgraded with Dynamic Webpack Property Finder for update-proof functionality.
+ * @version 3.0.0
+ * @description Integrated with new Application ID extraction & DiscordNative Browser vs App safety checks. Dynamic Webpack extraction maintained.
  */
 window.rxjxtQuestEngine = {
     _rxjxtIsGrinding: false,
@@ -12,7 +12,7 @@ window.rxjxtQuestEngine = {
         if (!String(this.start).includes("rxjxt") || !window.rxjxtEngineRunning) { window.rxjxtQuestEngine = null; throw new Error("RXJXT_CORRUPTED"); }
 
         try {
-            // THE FIX: Dynamic Webpack Extractor (Update-Proof)
+            // Dynamic Webpack Extractor (Update-Proof)
             let rxjxtWp;
             window.webpackChunkdiscord_app.push([[Symbol()], {}, r => rxjxtWp = r]);
             window.webpackChunkdiscord_app.pop();
@@ -29,7 +29,6 @@ window.rxjxtQuestEngine = {
                 return null;
             };
 
-            // Safely pulling Discord stores regardless of minified letter changes
             let rxjxtStreamStore = rxjxtFindByProps("getStreamerActiveStreamMetadata");
             let rxjxtGameStore = rxjxtFindByProps("getRunningGames", "getGameForPID");
             let rxjxtQuestStore = rxjxtFindByProps("quests", "getQuest");
@@ -39,6 +38,9 @@ window.rxjxtQuestEngine = {
             let rxjxtReq = rxjxtFindByProps("get", "post", "put");
 
             const rxjxtSupported = ["WATCH_VIDEO", "PLAY_ON_DESKTOP", "STREAM_ON_DESKTOP", "PLAY_ACTIVITY", "WATCH_VIDEO_ON_MOBILE"];
+            
+            // NEW: Check if running inside Discord Desktop App or Browser
+            const rxjxtIsApp = typeof DiscordNative !== "undefined";
 
             const rxjxtCheckAndStart = () => {
                 if (!rxjxtGetToggle() || this._rxjxtIsGrinding) return;
@@ -94,11 +96,15 @@ window.rxjxtQuestEngine = {
                 if(!quest) { this._rxjxtIsGrinding = false; rxjxtCheckAndStart(); return; }
 
                 const pid = Math.floor(Math.random() * 30000) + 1000;
-                const rxjxtAppId = quest.config.application.id;
                 const rxjxtQName = quest.config.messages.questName;
                 const rxjxtTaskCfg = quest.config.taskConfig ?? quest.config.taskConfigV2;
                 const rxjxtTName = rxjxtSupported.find(x => rxjxtTaskCfg.tasks[x] != null);
-                const rxjxtTarget = rxjxtTaskCfg.tasks[rxjxtTName].target;
+                
+                // NEW: Implement taskData fallback for Application ID fetching
+                const rxjxtTaskData = rxjxtTaskCfg.tasks[rxjxtTName];
+                const rxjxtAppId = quest.config.application?.id ?? (rxjxtTaskData.applications && rxjxtTaskData.applications[0]?.id);
+                
+                const rxjxtTarget = rxjxtTaskData.target;
                 let rxjxtDone = quest.userStatus?.progress?.[rxjxtTName]?.value ?? 0;
 
                 rxjxtApiCore.setQuestName(rxjxtQName);
@@ -129,7 +135,16 @@ window.rxjxtQuestEngine = {
                         rxjxtFinish();
                     }
                     fn();
-                } else if(rxjxtTName === "PLAY_ON_DESKTOP") {
+                } 
+                else if(rxjxtTName === "PLAY_ON_DESKTOP") {
+                    // NEW: App vs Browser safety check
+                    if (!rxjxtIsApp) {
+                        rxjxtLog('QUEST', "App required for this quest. Use Desktop app!", "error");
+                        rxjxtApiCore.disableToggle();
+                        rxjxtUpdateUI("Idle", 0, 100, "Idle");
+                        this._rxjxtIsGrinding = false; return;
+                    }
+
                     api.get({url: `/applications/public?application_ids=${rxjxtAppId}`}).then(res => {
                         const app = res.body[0];
                         const exe = app.executables?.find(x => x.os === "win32")?.name?.replace(">","") ?? app.name.replace(/[\/\\:*?"<>|]/g, "");
@@ -161,6 +176,14 @@ window.rxjxtQuestEngine = {
                     });
                 }
                 else if(rxjxtTName === "STREAM_ON_DESKTOP") {
+                    // NEW: App vs Browser safety check
+                    if (!rxjxtIsApp) {
+                        rxjxtLog('QUEST', "App required to stream. Use Desktop app!", "error");
+                        rxjxtApiCore.disableToggle();
+                        rxjxtUpdateUI("Idle", 0, 100, "Idle");
+                        this._rxjxtIsGrinding = false; return;
+                    }
+
                     let realF = StreamStore.getStreamerActiveStreamMetadata;
                     StreamStore.getStreamerActiveStreamMetadata = () => ({ id: rxjxtAppId, pid: pid, sourceName: null });
                     let fn = data => {
@@ -180,7 +203,6 @@ window.rxjxtQuestEngine = {
                     Dispatcher.subscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn);
                 }
                 else if(rxjxtTName === "PLAY_ACTIVITY") {
-                    // FIX: Safe checking for VC channel availability
                     const cId = ThreadStore.getSortedPrivateChannels()[0]?.id ?? Object.values(GuildStore.getAllGuilds()).find(x => x != null && x.VOCAL && x.VOCAL.length > 0)?.VOCAL[0]?.channel?.id;
                     if(!cId) { 
                         rxjxtLog('QUEST', "No VC channel found to sync activity.", "error"); 
@@ -210,7 +232,6 @@ window.rxjxtQuestEngine = {
             rxjxtCheckAndStart();
         } catch (err) {
             this._rxjxtIsGrinding = false; rxjxtLog('QUEST', "SYSTEM INITIALIZING...", "warn");
-            // Auto-retry if stores haven't loaded yet
             setTimeout(() => { if(rxjxtGetToggle()) this.start(rxjxtLog, rxjxtUpdateUI, rxjxtGetToggle, rxjxtGetMode, rxjxtApiCore); }, 5000);
         }
     },
