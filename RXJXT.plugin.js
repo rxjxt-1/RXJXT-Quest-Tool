@@ -2,7 +2,7 @@
  * @name RXJXTQuestDashboard
  * @author RXJXT
  * @description RXJXT Liquid Hub: v13.1.0 Stable Final (Right-Aligned Logo & Perfect UX)
- * @version 13.2.0
+ * @version 13.1.0
  * @updateUrl https://raw.githubusercontent.com/rxjxt-1/RXJXT-Quest-Tool/main/RXJXT.plugin.js
  */
 
