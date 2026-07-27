@@ -1,6 +1,7 @@
 /**
  * @name RXJXT-Quest-Engine
- * @version 1.0.0
+ * @version 2.0.0
+ * @description Upgraded with Dynamic Webpack Property Finder for update-proof functionality.
  */
 window.rxjxtQuestEngine = {
     _rxjxtIsGrinding: false,
@@ -11,22 +12,37 @@ window.rxjxtQuestEngine = {
         if (!String(this.start).includes("rxjxt") || !window.rxjxtEngineRunning) { window.rxjxtQuestEngine = null; throw new Error("RXJXT_CORRUPTED"); }
 
         try {
-            let rxjxtWp = window.webpackChunkdiscord_app.push([[Symbol()], {}, r => r]);
+            // THE FIX: Dynamic Webpack Extractor (Update-Proof)
+            let rxjxtWp;
+            window.webpackChunkdiscord_app.push([[Symbol()], {}, r => rxjxtWp = r]);
             window.webpackChunkdiscord_app.pop();
 
-            let rxjxtStreamStore = Object.values(rxjxtWp.c).find(x => x?.exports?.A?.__proto__?.getStreamerActiveStreamMetadata)?.exports?.A;
-            let rxjxtGameStore = Object.values(rxjxtWp.c).find(x => x?.exports?.Ay?.getRunningGames)?.exports?.Ay;
-            let rxjxtQuestStore = Object.values(rxjxtWp.c).find(x => x?.exports?.A?.__proto__?.getQuest)?.exports?.A;
-            let rxjxtThreadStore = Object.values(rxjxtWp.c).find(x => x?.exports?.A?.__proto__?.getAllThreadsForParent)?.exports?.A;
-            let rxjxtGuildStore = Object.values(rxjxtWp.c).find(x => x?.exports?.Ay?.getSFWDefaultChannel)?.exports?.Ay;
-            let rxjxtDispatcher = Object.values(rxjxtWp.c).find(x => x?.exports?.h?.__proto__?.flushWaitQueue)?.exports?.h;
-            let rxjxtReq = Object.values(rxjxtWp.c).find(x => x?.exports?.Bo?.get)?.exports?.Bo;
+            const rxjxtFindByProps = (...props) => {
+                for (let m of Object.values(rxjxtWp.c)) {
+                    if (m?.exports) {
+                        if (props.every(p => m.exports[p] !== undefined)) return m.exports;
+                        for (let key in m.exports) {
+                            if (m.exports[key] && typeof m.exports[key] === 'object' && props.every(p => m.exports[key][p] !== undefined)) return m.exports[key];
+                        }
+                    }
+                }
+                return null;
+            };
+
+            // Safely pulling Discord stores regardless of minified letter changes
+            let rxjxtStreamStore = rxjxtFindByProps("getStreamerActiveStreamMetadata");
+            let rxjxtGameStore = rxjxtFindByProps("getRunningGames", "getGameForPID");
+            let rxjxtQuestStore = rxjxtFindByProps("quests", "getQuest");
+            let rxjxtThreadStore = rxjxtFindByProps("getAllThreadsForParent");
+            let rxjxtGuildStore = rxjxtFindByProps("getSFWDefaultChannel");
+            let rxjxtDispatcher = rxjxtFindByProps("dispatch", "subscribe", "unsubscribe");
+            let rxjxtReq = rxjxtFindByProps("get", "post", "put");
 
             const rxjxtSupported = ["WATCH_VIDEO", "PLAY_ON_DESKTOP", "STREAM_ON_DESKTOP", "PLAY_ACTIVITY", "WATCH_VIDEO_ON_MOBILE"];
 
             const rxjxtCheckAndStart = () => {
                 if (!rxjxtGetToggle() || this._rxjxtIsGrinding) return;
-                if (!rxjxtQuestStore) { rxjxtLog('QUEST', "Discord Core Not Ready", "warn"); return; }
+                if (!rxjxtQuestStore) { rxjxtLog('QUEST', "Discord Core Not Ready. Retrying...", "warn"); return; }
 
                 const rxjxtAll = [...rxjxtQuestStore.quests.values()].filter(x => new Date(x.config.expiresAt).getTime() > Date.now() && rxjxtSupported.find(y => Object.keys((x.config.taskConfig ?? x.config.taskConfigV2).tasks).includes(y)));
                 let rxjxtUnacc = rxjxtAll.filter(x => !x.userStatus?.enrolledAt && !x.userStatus?.completedAt);
@@ -164,13 +180,21 @@ window.rxjxtQuestEngine = {
                     Dispatcher.subscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn);
                 }
                 else if(rxjxtTName === "PLAY_ACTIVITY") {
-                    const cId = ThreadStore.getSortedPrivateChannels()[0]?.id ?? Object.values(GuildStore.getAllGuilds()).find(x => x != null && x.VOCAL.length > 0).VOCAL[0].channel.id;
+                    // FIX: Safe checking for VC channel availability
+                    const cId = ThreadStore.getSortedPrivateChannels()[0]?.id ?? Object.values(GuildStore.getAllGuilds()).find(x => x != null && x.VOCAL && x.VOCAL.length > 0)?.VOCAL[0]?.channel?.id;
+                    if(!cId) { 
+                        rxjxtLog('QUEST', "No VC channel found to sync activity.", "error"); 
+                        this._rxjxtIsGrinding = false;
+                        rxjxtCheckAndStart();
+                        return; 
+                    }
+                    
                     const sKey = `call:${cId}:1`;
                     let fn = async () => {
                         while(true) {
                             if (!rxjxtGetToggle()) { this._rxjxtIsGrinding = false; return; } 
                             const res = await api.post({url: `/quests/${quest.id}/heartbeat`, body: {stream_key: sKey, terminal: false}});
-                            const prog = res.body.progress.PLAY_ACTIVITY.value;
+                            const prog = res?.body?.progress?.PLAY_ACTIVITY?.value ?? rxjxtDone;
                             rxjxtUpdateUI(rxjxtQName, prog, rxjxtTarget, "Syncing");
                             await new Promise(r => setTimeout(r, 20000));
                             if(prog >= rxjxtTarget) {
@@ -186,6 +210,8 @@ window.rxjxtQuestEngine = {
             rxjxtCheckAndStart();
         } catch (err) {
             this._rxjxtIsGrinding = false; rxjxtLog('QUEST', "SYSTEM INITIALIZING...", "warn");
+            // Auto-retry if stores haven't loaded yet
+            setTimeout(() => { if(rxjxtGetToggle()) this.start(rxjxtLog, rxjxtUpdateUI, rxjxtGetToggle, rxjxtGetMode, rxjxtApiCore); }, 5000);
         }
     },
     stop: function() {
