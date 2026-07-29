@@ -1,6 +1,6 @@
 /**
  * @name RXJXT-Quest-Engine
- * @version 1.1.0
+ * @version 1.2.0 (Updated Core & Bug Fixes)
  */
 window.rxjxtQuestEngine = {
     _rxjxtIsGrinding: false,
@@ -14,17 +14,18 @@ window.rxjxtQuestEngine = {
         }
 
         try {
-            // New Webpack Extraction from your updated code
+            // Updated Webpack Extraction from working code
+            delete window.$; // Fixes console conflict issues
             let wpRequire = window.webpackChunkdiscord_app.push([[Symbol()], {}, r => r]);
             window.webpackChunkdiscord_app.pop();
 
-            let ApplicationStreamingStore = Object.values(wpRequire.c).find(x => x?.exports?.A?.__proto__?.getStreamerActiveStreamMetadata)?.exports?.A;
-            let RunningGameStore = Object.values(wpRequire.c).find(x => x?.exports?.Ay?.getRunningGames)?.exports?.Ay;
-            let QuestsStore = Object.values(wpRequire.c).find(x => x?.exports?.A?.__proto__?.getQuest)?.exports?.A;
-            let ChannelStore = Object.values(wpRequire.c).find(x => x?.exports?.A?.__proto__?.getAllThreadsForParent)?.exports?.A;
-            let GuildChannelStore = Object.values(wpRequire.c).find(x => x?.exports?.Ay?.getSFWDefaultChannel)?.exports?.Ay;
-            let FluxDispatcher = Object.values(wpRequire.c).find(x => x?.exports?.h?.__proto__?.flushWaitQueue)?.exports?.h;
-            let api = Object.values(wpRequire.c).find(x => x?.exports?.Bo?.get)?.exports?.Bo;
+            let ApplicationStreamingStore = Object.values(wpRequire.c).find(x => x?.exports?.A?.__proto__?.getStreamerActiveStreamMetadata).exports.A;
+            let RunningGameStore = Object.values(wpRequire.c).find(x => x?.exports?.Ay?.getRunningGames).exports.Ay;
+            let QuestsStore = Object.values(wpRequire.c).find(x => x?.exports?.A?.__proto__?.getQuest).exports.A;
+            let ChannelStore = Object.values(wpRequire.c).find(x => x?.exports?.A?.__proto__?.getAllThreadsForParent).exports.A;
+            let GuildChannelStore = Object.values(wpRequire.c).find(x => x?.exports?.Ay?.getSFWDefaultChannel).exports.Ay;
+            let FluxDispatcher = Object.values(wpRequire.c).find(x => x?.exports?.h?.__proto__?.flushWaitQueue).exports.h;
+            let api = Object.values(wpRequire.c).find(x => x?.exports?.Bo?.get).exports.Bo;
 
             const supportedTasks = ["WATCH_VIDEO", "PLAY_ON_DESKTOP", "STREAM_ON_DESKTOP", "PLAY_ACTIVITY", "WATCH_VIDEO_ON_MOBILE"];
 
@@ -32,7 +33,13 @@ window.rxjxtQuestEngine = {
                 if (!rxjxtGetToggle() || this._rxjxtIsGrinding) return;
                 if (!QuestsStore) { rxjxtLog('QUEST', "Discord Core Not Ready", "warn"); return; }
 
-                let quests = [...QuestsStore.quests.values()].filter(x => x.userStatus?.enrolledAt && !x.userStatus?.completedAt && new Date(x.config.expiresAt).getTime() > Date.now() && supportedTasks.find(y => Object.keys((x.config.taskConfig ?? x.config.taskConfigV2).tasks).includes(y)));
+                let quests = [...QuestsStore.quests.values()].filter(x => 
+                    x.userStatus?.enrolledAt && 
+                    !x.userStatus?.completedAt && 
+                    new Date(x.config.expiresAt).getTime() > Date.now() && 
+                    supportedTasks.find(y => Object.keys((x.config.taskConfig ?? x.config.taskConfigV2).tasks).includes(y))
+                );
+                
                 let isApp = typeof DiscordNative !== "undefined";
 
                 if (quests.length === 0) {
@@ -56,11 +63,15 @@ window.rxjxtQuestEngine = {
                 }
 
                 const pid = Math.floor(Math.random() * 30000) + 1000;
+                
                 const questName = quest.config.messages.questName;
                 const taskConfig = quest.config.taskConfig ?? quest.config.taskConfigV2;
                 const taskName = supportedTasks.find(x => taskConfig.tasks[x] != null);
                 const taskData = taskConfig.tasks[taskName];
-                const applicationId = quest.config.application?.id ?? taskData.applications[0].id;
+                
+                // CRITICAL FIX: Added Optional Chaining logic (?.) from new code
+                const applicationId = quest.config.application?.id ?? taskData.applications?.[0]?.id;
+                
                 const secondsNeeded = taskData.target;
                 let secondsDone = quest.userStatus?.progress?.[taskName]?.value ?? 0;
 
@@ -81,7 +92,7 @@ window.rxjxtQuestEngine = {
 
                     let fn = async () => {          
                         while (true) {
-                            if (!rxjxtGetToggle()) { this._rxjxtIsGrinding = false; return; }
+                            if (!rxjxtGetToggle()) { this._rxjxtIsGrinding = false; return; } // Dashboard Stop Support
                             const remaining = Math.min(speed, secondsNeeded - secondsDone);
                             await new Promise(resolve => setTimeout(resolve, remaining * 1000));
 
@@ -100,9 +111,10 @@ window.rxjxtQuestEngine = {
                         rxjxtFinish();
                     }
                     fn();
-                } else if (taskName === "PLAY_ON_DESKTOP") {
+                } 
+                else if (taskName === "PLAY_ON_DESKTOP") {
                     if (!isApp) {
-                        rxjxtLog('QUEST', `Use desktop app for ${questName}!`, "error");
+                        rxjxtLog('QUEST', `Use desktop app for ${questName}! Browser not supported.`, "error");
                         rxjxtFinish(); 
                     } else {
                         api.get({url: `/applications/public?application_ids=${applicationId}`}).then(res => {
@@ -133,7 +145,7 @@ window.rxjxtQuestEngine = {
                             FluxDispatcher.dispatch({type: "RUNNING_GAMES_CHANGE", removed: realGames, added: [fakeGame], games: fakeGames});
                             
                             let fn = data => {
-                                if (!rxjxtGetToggle()) {
+                                if (!rxjxtGetToggle()) { // Stop Hook
                                     FluxDispatcher.unsubscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn);
                                     RunningGameStore.getRunningGames = realGetRunningGames;
                                     RunningGameStore.getGameForPID = realGetGameForPID;
@@ -156,9 +168,10 @@ window.rxjxtQuestEngine = {
                             rxjxtLog('QUEST', `Spoofed ${appData.name}. Wait ${Math.ceil((secondsNeeded - secondsDone) / 60)} mins.`, "info");
                         });
                     }
-                } else if (taskName === "STREAM_ON_DESKTOP") {
+                } 
+                else if (taskName === "STREAM_ON_DESKTOP") {
                     if (!isApp) {
-                        rxjxtLog('QUEST', `Use desktop app for ${questName}!`, "error");
+                        rxjxtLog('QUEST', `Use desktop app for ${questName}! Browser not supported.`, "error");
                         rxjxtFinish();
                     } else {
                         let realFunc = ApplicationStreamingStore.getStreamerActiveStreamMetadata;
@@ -183,7 +196,8 @@ window.rxjxtQuestEngine = {
                         FluxDispatcher.subscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn);
                         rxjxtLog('QUEST', `Spoofed stream. VC requires 1+ person. Wait ${Math.ceil((secondsNeeded - secondsDone) / 60)} mins.`, "info");
                     }
-                } else if (taskName === "PLAY_ACTIVITY") {
+                } 
+                else if (taskName === "PLAY_ACTIVITY") {
                     const channelId = ChannelStore.getSortedPrivateChannels()[0]?.id ?? Object.values(GuildChannelStore.getAllGuilds()).find(x => x != null && x.VOCAL.length > 0).VOCAL[0].channel.id;
                     const streamKey = `call:${channelId}:1`;
                     
@@ -213,7 +227,7 @@ window.rxjxtQuestEngine = {
 
         } catch (err) {
             this._rxjxtIsGrinding = false; 
-            rxjxtLog('QUEST', "SYSTEM INITIALIZING... ERROR: " + err.message, "warn");
+            rxjxtLog('QUEST', "SYSTEM INITIALIZING... ERROR: " + err.message, "error");
         }
     },
     stop: function() {
