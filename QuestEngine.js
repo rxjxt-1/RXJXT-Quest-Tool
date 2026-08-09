@@ -1,6 +1,6 @@
 /**
  * @name RXJXT-Quest-Engine
- * @version 1.2.0 (Updated Core & Bug Fixes)
+ * @version 1.2.1 (Stealth & Rage Mode Fixed)
  */
 window.rxjxtQuestEngine = {
     _rxjxtIsGrinding: false,
@@ -14,8 +14,7 @@ window.rxjxtQuestEngine = {
         }
 
         try {
-            // Updated Webpack Extraction from working code
-            delete window.$; // Fixes console conflict issues
+            delete window.$; 
             let wpRequire = window.webpackChunkdiscord_app.push([[Symbol()], {}, r => r]);
             window.webpackChunkdiscord_app.pop();
 
@@ -27,23 +26,37 @@ window.rxjxtQuestEngine = {
             let FluxDispatcher = Object.values(wpRequire.c).find(x => x?.exports?.h?.__proto__?.flushWaitQueue).exports.h;
             let api = Object.values(wpRequire.c).find(x => x?.exports?.Bo?.get).exports.Bo;
 
-            const supportedTasks = ["WATCH_VIDEO", "PLAY_ON_DESKTOP", "STREAM_ON_DESKTOP", "PLAY_ACTIVITY", "WATCH_VIDEO_ON_MOBILE"];
+            // [ NEW FIX ]: Dynamic Task Filter based on current Mode
+            const getActiveTasks = () => {
+                const mode = rxjxtGetMode();
+                if (mode === "RAGE") {
+                    // Sab kuch chalega
+                    return ["WATCH_VIDEO", "PLAY_ON_DESKTOP", "STREAM_ON_DESKTOP", "PLAY_ACTIVITY", "WATCH_VIDEO_ON_MOBILE"];
+                } else {
+                    // STEALTH: Sirf Desktop Games and Game Activity
+                    return ["PLAY_ON_DESKTOP", "PLAY_ACTIVITY"];
+                }
+            };
 
             const rxjxtCheckAndStart = () => {
                 if (!rxjxtGetToggle() || this._rxjxtIsGrinding) return;
                 if (!QuestsStore) { rxjxtLog('QUEST', "Discord Core Not Ready", "warn"); return; }
 
+                // Fetching tasks dynamically
+                const currentTasks = getActiveTasks(); 
+
                 let quests = [...QuestsStore.quests.values()].filter(x => 
                     x.userStatus?.enrolledAt && 
                     !x.userStatus?.completedAt && 
                     new Date(x.config.expiresAt).getTime() > Date.now() && 
-                    supportedTasks.find(y => Object.keys((x.config.taskConfig ?? x.config.taskConfigV2).tasks).includes(y))
+                    // Yaha filter static string ki jagah function output se hoga
+                    currentTasks.find(y => Object.keys((x.config.taskConfig ?? x.config.taskConfigV2).tasks).includes(y))
                 );
                 
                 let isApp = typeof DiscordNative !== "undefined";
 
                 if (quests.length === 0) {
-                    rxjxtLog('QUEST', "You don't have any uncompleted quests!", "warn");
+                    rxjxtLog('QUEST', `No uncompleted ${rxjxtGetMode()} quests found!`, "warn");
                     rxjxtUpdateUI("Finished", 100, 100, "Idle");
                     return;
                 }
@@ -66,10 +79,12 @@ window.rxjxtQuestEngine = {
                 
                 const questName = quest.config.messages.questName;
                 const taskConfig = quest.config.taskConfig ?? quest.config.taskConfigV2;
-                const taskName = supportedTasks.find(x => taskConfig.tasks[x] != null);
+                
+                // [ NEW FIX ]: Finding correct task ID based on Mode
+                const currentTasks = getActiveTasks();
+                const taskName = currentTasks.find(x => taskConfig.tasks[x] != null);
                 const taskData = taskConfig.tasks[taskName];
                 
-                // CRITICAL FIX: Added Optional Chaining logic (?.) from new code
                 const applicationId = quest.config.application?.id ?? taskData.applications?.[0]?.id;
                 
                 const secondsNeeded = taskData.target;
@@ -92,7 +107,7 @@ window.rxjxtQuestEngine = {
 
                     let fn = async () => {          
                         while (true) {
-                            if (!rxjxtGetToggle()) { this._rxjxtIsGrinding = false; return; } // Dashboard Stop Support
+                            if (!rxjxtGetToggle()) { this._rxjxtIsGrinding = false; return; } 
                             const remaining = Math.min(speed, secondsNeeded - secondsDone);
                             await new Promise(resolve => setTimeout(resolve, remaining * 1000));
 
@@ -145,7 +160,7 @@ window.rxjxtQuestEngine = {
                             FluxDispatcher.dispatch({type: "RUNNING_GAMES_CHANGE", removed: realGames, added: [fakeGame], games: fakeGames});
                             
                             let fn = data => {
-                                if (!rxjxtGetToggle()) { // Stop Hook
+                                if (!rxjxtGetToggle()) {
                                     FluxDispatcher.unsubscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn);
                                     RunningGameStore.getRunningGames = realGetRunningGames;
                                     RunningGameStore.getGameForPID = realGetGameForPID;
