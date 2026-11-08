@@ -1,8 +1,8 @@
 /**
  * @name RXJXTQuestDashboard
  * @author RXJXT
- * @description RXJXT Liquid Hub: v16.0.0 (Deep Webpack Traversal VC Joiner)
- * @version 16.0.0
+ * @description RXJXT Liquid Hub: v17.0.0 (Deep Webpack Traversal VC Joiner)
+ * @version 17.0.0
  * @updateUrl https://raw.githubusercontent.com/rxjxt-1/RXJXT-Quest-Tool/main/RXJXT.plugin.js
  */
 
@@ -23,13 +23,14 @@ module.exports = class RXJXTQuestDashboard {
         window.rxjxtCurrentProg = 0; window.rxjxtTotalSeconds = 0; window.rxjxtCurrentSecondsDone = 0; window.rxjxtUpdateAvailable = false;
         console.clear();
         
-        const RXJXT_HUB_VER = "16.0.0";
+        const RXJXT_HUB_VER = "17.0.0";
         const RXJXT_REPO_BASE = "https://raw.githubusercontent.com/rxjxt-1/RXJXT-Quest-Tool/main/";
         const RXJXT_HUB_URL = RXJXT_REPO_BASE + "RXJXT.plugin.js";
         const RXJXT_QUEST_URL = RXJXT_REPO_BASE + "QuestEngine.js";
         const RXJXT_DEAFEN_URL = RXJXT_REPO_BASE + "DeafenEngine.js";
 
         const CUSTOM_LOGO_URL = "https://i.ibb.co/KcS5f6yT/b3e66a70-76a7-455b-8c40-6fccf7dc6193-1.png"; 
+        const SHOVEL_DIG_GIF_URL = "https://media.tenor.com/xZ1kJC5YpzMAAAAj/shovel-digging.gif";
         const DEVELOPER_ID = "1262670730865283076"; 
 
         const rxjxtLog = (app, msg, type = "info") => {
@@ -74,6 +75,7 @@ module.exports = class RXJXTQuestDashboard {
             const name = String(value ?? '').trim();
             return !!name && !/^(none|none selected|no (?:active )?quests?(?: found| available)?|quest not found|searching(?: for)? quest|idle|n\/a)$/i.test(name);
         };
+        const rxjxtIsConnectedToVC = () => !!document.querySelector('button[aria-label="Disconnect"]') || !!document.querySelector('button[aria-label="Disconnect from Voice"]');
 
         const rxjxtInjectUI = () => {
             if (document.getElementById('rxjxt-overlay')) return;
@@ -946,8 +948,211 @@ module.exports = class RXJXTQuestDashboard {
                     .rxjxt-glass-card { padding: 15px; border-radius: 14px; }
                     .rxjxt-footer { text-align: center; }
                 }
+                /* Discord toolbar controls: matching rectangular hardware, distinct states. */
+                @property --rxjxt-toolbar-progress-angle {
+                    syntax: "<angle>";
+                    inherits: false;
+                    initial-value: 0deg;
+                }
+                #rxjxt-header-btn,
+                #rxjxt-vc-btn {
+                    box-sizing: border-box !important;
+                    width: 44px !important;
+                    height: 34px !important;
+                    flex: 0 0 44px;
+                    padding: 0 !important;
+                    border-radius: 9px !important;
+                    cursor: pointer;
+                    transform-style: preserve-3d;
+                    -webkit-tap-highlight-color: transparent;
+                }
+                #rxjxt-header-btn {
+                    position: relative !important;
+                    isolation: isolate;
+                    overflow: hidden;
+                    --rxjxt-toolbar-progress-angle: 0deg;
+                    border: 2px solid transparent !important;
+                    background: linear-gradient(145deg, #111112, #020202) padding-box, conic-gradient(from -90deg, #37e77c 0deg var(--rxjxt-toolbar-progress-angle), rgba(255,255,255,.16) var(--rxjxt-toolbar-progress-angle) 360deg) border-box !important;
+                    box-shadow: 0 4px 13px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.09), 0 0 12px rgba(255,48,69,.08);
+                    filter: none !important;
+                    transition: width .42s cubic-bezier(.18,.82,.22,1), flex-basis .42s cubic-bezier(.18,.82,.22,1), transform .28s cubic-bezier(.18,.82,.22,1), box-shadow .32s ease, --rxjxt-toolbar-progress-angle .55s cubic-bezier(.18,.82,.22,1) !important;
+                }
+                #rxjxt-header-btn::before {
+                    content: "";
+                    position: absolute;
+                    inset: 1px;
+                    z-index: 1;
+                    pointer-events: none;
+                    border-radius: 7px;
+                    opacity: 0;
+                    background: linear-gradient(110deg, transparent 0%, rgba(255,255,255,.03) 36%, rgba(255,255,255,.38) 49%, rgba(255,48,69,.28) 57%, transparent 76%);
+                    transition: opacity .3s ease;
+                }
+                #rxjxt-header-btn::after {
+                    content: none;
+                }
+                #rxjxt-header-ring {
+                    position: relative !important;
+                    z-index: 2 !important;
+                    width: 100% !important;
+                    height: 100% !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    gap: 0;
+                    overflow: hidden !important;
+                    border-radius: inherit !important;
+                    background: transparent !important;
+                    background-image: none !important;
+                    box-shadow: none !important;
+                }
+                #rxjxt-header-inner {
+                    width: 28px !important;
+                    height: 28px !important;
+                    display: grid !important;
+                    place-items: center !important;
+                    overflow: visible !important;
+                    border-radius: 4px !important;
+                    background: transparent !important;
+                    box-shadow: none !important;
+                    transform: translateY(-1px) !important;
+                    transition: transform .28s cubic-bezier(.18,.82,.22,1) !important;
+                }
+                .rxjxt-custom-logo {
+                    width: 100% !important;
+                    height: 100% !important;
+                    object-fit: contain !important;
+                    border-radius: 0 !important;
+                    filter: none !important;
+                    transform: translateZ(1px);
+                    transition: transform .32s cubic-bezier(.18,.82,.22,1), filter .32s ease;
+                }
+                #rxjxt-dashboard-shovel {
+                    display: grid;
+                    flex: 0 0 0;
+                    width: 0;
+                    height: 21px;
+                    place-items: center;
+                    overflow: hidden;
+                    opacity: 0;
+                    color: #ff4055;
+                    transform: translateX(6px) scale(.68);
+                    transform-origin: center;
+                    transition: width .42s cubic-bezier(.18,.82,.22,1), flex-basis .42s cubic-bezier(.18,.82,.22,1), opacity .24s ease, transform .5s cubic-bezier(.18,.82,.22,1);
+                }
+                #rxjxt-dashboard-shovel .rxjxt-shovel-static { display: block; width: 20px; height: 20px; overflow: visible; filter: drop-shadow(0 0 3px rgba(255,48,69,.52)); }
+                #rxjxt-dashboard-shovel .rxjxt-shovel-gif { display: none; width: 21px; height: 21px; object-fit: contain; filter: grayscale(1) contrast(2.7) sepia(1) saturate(9) hue-rotate(318deg) brightness(.88); mix-blend-mode: screen; }
+                #rxjxt-dashboard-shovel .rxjxt-shovel-dirt { opacity: 0; transform-box: fill-box; transform-origin: center; }
+                #rxjxt-header-btn.rxjxt-dashboard-open {
+                    width: 70px !important;
+                    flex-basis: 70px !important;
+                }
+                #rxjxt-header-btn.rxjxt-dashboard-open #rxjxt-header-ring { gap: 7px; }
+                #rxjxt-header-btn.rxjxt-toolbar-active {
+                    width: 70px !important;
+                    flex-basis: 70px !important;
+                }
+                #rxjxt-header-btn.rxjxt-toolbar-active #rxjxt-header-ring { gap: 7px; }
+                #rxjxt-header-btn.rxjxt-dashboard-open #rxjxt-dashboard-shovel,
+                #rxjxt-header-btn.rxjxt-toolbar-active #rxjxt-dashboard-shovel {
+                    width: 22px;
+                    flex-basis: 22px;
+                    opacity: 1;
+                    transform: translateX(0) scale(1);
+                }
+                #rxjxt-header-btn.rxjxt-shovel-animated #rxjxt-dashboard-shovel .rxjxt-shovel-static { display: none; }
+                #rxjxt-header-btn.rxjxt-shovel-animated #rxjxt-dashboard-shovel .rxjxt-shovel-gif[src] { display: block; }
+                #rxjxt-header-btn:hover::before,
+                #rxjxt-header-btn.rxjxt-toolbar-active::before { opacity: 1; animation: rxjxtVoiceSheen 1.15s cubic-bezier(.18,.82,.22,1) infinite; }
+                #rxjxt-header-btn:hover {
+                    transform: translateY(-1px) perspective(400px) rotateX(3deg) scale(1.035) !important;
+                    border-color: rgba(255,48,69,.9) !important;
+                    box-shadow: 0 7px 20px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.15), 0 0 18px rgba(255,48,69,.23);
+                }
+                #rxjxt-header-btn:hover #rxjxt-header-inner { transform: translateY(-1px) translateZ(4px) scale(1.07) !important; }
+                #rxjxt-header-btn:hover .rxjxt-custom-logo { transform: translateZ(5px) scale(1.04); }
+                #rxjxt-header-btn:active { transform: translateY(1px) scale(.965) !important; }
+                #rxjxt-header-btn.rxjxt-dashboard-open { border-color: rgba(255,48,69,.78) !important; box-shadow: 0 0 15px rgba(255,48,69,.16), inset 0 1px 0 rgba(255,255,255,.1); }
+                #rxjxt-vc-btn {
+                    position: relative;
+                    isolation: isolate;
+                    overflow: hidden;
+                    margin: 0 5px 0 7px !important;
+                    border: 1px solid rgba(255,255,255,.13) !important;
+                    color: rgba(255,48,69,.72) !important;
+                    background: linear-gradient(145deg, #111112, #030303) !important;
+                    box-shadow: 0 4px 13px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.065);
+                    transition: transform .28s cubic-bezier(.18,.82,.22,1), border-color .3s ease, color .3s ease, box-shadow .3s ease, background .3s ease !important;
+                }
+                #rxjxt-vc-btn::before {
+                    content: "";
+                    position: absolute;
+                    inset: 1px;
+                    z-index: 0;
+                    border-radius: 7px;
+                    pointer-events: none;
+                    opacity: 0;
+                    background: linear-gradient(130deg, rgba(255,255,255,.12), transparent 48%, rgba(255,255,255,.035));
+                    transition: opacity .3s ease;
+                }
+                #rxjxt-vc-btn svg { position: relative; z-index: 1; width: 17px; height: 17px; color: inherit; opacity: .88; transition: transform .3s cubic-bezier(.18,.82,.22,1), filter .3s ease, opacity .3s ease; }
+                #rxjxt-vc-btn:hover:not(.rxjxt-vc-connected) { border-color: rgba(255,255,255,.28) !important; color: #ff5263 !important; background: linear-gradient(145deg, #171718, #060606) !important; box-shadow: 0 7px 16px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.1); }
+                #rxjxt-vc-btn:hover::before { opacity: 1; }
+                #rxjxt-vc-btn.rxjxt-vc-connected:active { transform: translateY(1px) scale(.965) !important; }
+                #rxjxt-vc-btn.rxjxt-vc-connected:active svg { transform: perspective(360px) rotateX(12deg) scale(.86); }
+                #rxjxt-vc-btn.rxjxt-vc-connected {
+                    border-color: rgba(255,48,69,.78) !important;
+                    color: #ff4055 !important;
+                    background: linear-gradient(145deg, #1c070a, #050303) !important;
+                    animation: rxjxtVoiceConnected 2.2s ease-in-out infinite;
+                }
+                #rxjxt-vc-btn.rxjxt-vc-connected:hover { transform: translateY(-2px) perspective(480px) rotateX(6deg) scale(1.045) !important; }
+                #rxjxt-vc-btn.rxjxt-vc-connected::before { opacity: 1; background: linear-gradient(110deg, transparent, rgba(255,255,255,.08) 38%, rgba(255,48,69,.24) 52%, transparent 72%); animation: rxjxtVoiceSheen 2.6s cubic-bezier(.18,.82,.22,1) infinite; }
+                #rxjxt-vc-btn:hover::before { opacity: 1; background: linear-gradient(110deg, transparent 0%, rgba(255,255,255,.03) 36%, rgba(255,255,255,.38) 49%, rgba(255,48,69,.28) 57%, transparent 76%); animation: rxjxtVoiceSheen 1.15s cubic-bezier(.18,.82,.22,1) infinite; }
+                #rxjxt-vc-btn.rxjxt-vc-connected svg { opacity: 1; filter: drop-shadow(0 0 7px rgba(255,48,69,.68)); animation: rxjxtVoiceSignal 1.8s ease-in-out infinite; }
+                #rxjxt-vc-btn .rxjxt-speaker-wave { transform-box: fill-box; transform-origin: center; }
+                #rxjxt-vc-btn.rxjxt-vc-connected .rxjxt-speaker-body { animation: rxjxtSpeakerCore 1.8s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+                #rxjxt-vc-btn.rxjxt-vc-connected .rxjxt-speaker-wave-near { animation: rxjxtSpeakerWave 1.25s ease-in-out infinite; }
+                #rxjxt-vc-btn.rxjxt-vc-connected .rxjxt-speaker-wave-far { animation: rxjxtSpeakerWave 1.25s ease-in-out .24s infinite; }
+                #rxjxt-header-btn:focus-visible, #rxjxt-vc-btn:focus-visible { outline: 2px solid #ff3045; outline-offset: 3px; }
+
+                .rxjxt-progress-bg {
+                    box-sizing: border-box;
+                    width: 100%;
+                    height: 12px;
+                    padding: 0;
+                    border-radius: 3px;
+                    vertical-align: middle;
+                    border-color: rgba(255,255,255,.09);
+                    background: #030303;
+                    box-shadow: inset 0 2px 5px rgba(0,0,0,.95), 0 1px 0 rgba(255,255,255,.025);
+                }
+                .rxjxt-progress-fill,
+                .theme-stealth .rxjxt-progress-fill,
+                .theme-rage .rxjxt-progress-fill {
+                    box-sizing: border-box;
+                    height: 100%;
+                    min-width: 0;
+                    border-radius: 2px;
+                    vertical-align: top;
+                    background: linear-gradient(90deg, #760817 0%, #d71e33 60%, #ff4055 88%, #ffd4da 100%);
+                    box-shadow: inset 0 1px 1px rgba(255,255,255,.4), 0 0 16px rgba(255,48,69,.35);
+                }
+                .rxjxt-progress-bg::after {
+                    background: linear-gradient(90deg, transparent, rgba(255,48,69,.24), rgba(255,232,235,.82), rgba(255,64,85,.3), transparent);
+                }
+                .rxjxt-progress-fill::after {
+                    background: linear-gradient(90deg, transparent, rgba(255,240,242,.94), rgba(255,92,109,.56), transparent);
+                }
+                @keyframes rxjxtVoiceConnected { 0%,100% { box-shadow: 0 4px 13px rgba(0,0,0,.45), 0 0 5px rgba(255,48,69,.12), inset 0 1px 0 rgba(255,255,255,.08); } 50% { box-shadow: 0 5px 18px rgba(0,0,0,.5), 0 0 17px rgba(255,48,69,.42), inset 0 0 12px rgba(255,48,69,.1); } }
+                @keyframes rxjxtVoiceSheen { 0% { opacity: 0; transform: translateX(-115%); } 22% { opacity: .8; } 72% { opacity: .65; } 100% { opacity: 0; transform: translateX(115%); } }
+                @keyframes rxjxtVoiceSignal { 0%,100% { transform: scale(1); } 50% { transform: scale(1.09); } }
+                @keyframes rxjxtSpeakerCore { 0%,100% { transform: scale(1); } 50% { transform: scale(1.045); } }
+                @keyframes rxjxtSpeakerWave { 0%,100% { opacity: .62; } 50% { opacity: 1; filter: drop-shadow(0 0 3px rgba(255,80,100,.78)); } }
                 @media (prefers-reduced-motion: reduce) {
                     #rxjxt-overlay *, #rxjxt-toast-container * { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+                    #rxjxt-header-btn::before { animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+                    #rxjxt-vc-btn, #rxjxt-vc-btn::before, #rxjxt-vc-btn svg, #rxjxt-vc-btn svg * { animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
                 }
             `;
             document.head.appendChild(style);
@@ -1317,7 +1522,7 @@ module.exports = class RXJXTQuestDashboard {
                 rxjxtShowToast('Profile Change', `Switched to ${window.rxjxtMode} parameters.`, window.rxjxtMode === 'RAGE' ? 'error' : 'success');
             };
 
-            const isConnectedToVC = () => !!document.querySelector('button[aria-label="Disconnect"]') || !!document.querySelector('button[aria-label="Disconnect from Voice"]');
+            const isConnectedToVC = rxjxtIsConnectedToVC;
 
             const deafenInput = document.getElementById('rxjxt-deafen-toggle');
             deafenInput.addEventListener('change', async (e) => {
@@ -1437,28 +1642,38 @@ module.exports = class RXJXTQuestDashboard {
             if (toolbar && !btn) {
                 btn = document.createElement('div'); btn.id = 'rxjxt-header-btn'; 
                 btn.style.cssText = 'display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; margin-left: 4px; margin-right: 4px;';
+                btn.setAttribute('role', 'button');
+                btn.setAttribute('aria-label', 'Open RXJXT dashboard');
+                btn.setAttribute('aria-pressed', 'false');
+                btn.tabIndex = 0;
                 
-                btn.innerHTML = `<div id="rxjxt-header-ring"><div id="rxjxt-header-inner"><img src="${CUSTOM_LOGO_URL}" class="rxjxt-custom-logo" alt="RX"></div></div>`;
+                btn.innerHTML = `<div id="rxjxt-header-ring"><div id="rxjxt-header-inner"><img src="${CUSTOM_LOGO_URL}" class="rxjxt-custom-logo" alt="RX"></div><span id="rxjxt-dashboard-shovel" aria-hidden="true"><svg class="rxjxt-shovel-static" viewBox="0 0 24 24" fill="none" aria-hidden="true"><defs><linearGradient id="rxjxt-shovel-blade" x1="2" y1="21" x2="10" y2="12" gradientUnits="userSpaceOnUse"><stop stop-color="#a90c20"/><stop offset=".58" stop-color="#ff3045"/><stop offset="1" stop-color="#ff9aa4"/></linearGradient><linearGradient id="rxjxt-shovel-handle" x1="9" y1="15" x2="21" y2="3" gradientUnits="userSpaceOnUse"><stop stop-color="#8e0d1d"/><stop offset=".55" stop-color="#ff4055"/><stop offset="1" stop-color="#ffc0c5"/></linearGradient></defs><g class="rxjxt-shovel-action"><path d="M18.7 5.1 8.5 15.2" stroke="url(#rxjxt-shovel-handle)" stroke-width="3" stroke-linecap="round"/><path d="m17.9 4.4 2.8-2.7 2 2-2.7 2.8" fill="#a90c20" stroke="#ff8792" stroke-width=".8" stroke-linejoin="round"/><path d="M9.2 14.1c-2.3-2.4-5.7-1.5-6.6 1.5l-1.8 5.1c-.2.6.4 1.2 1 .9l5.1-1.8c3-1 3.8-4.3 1.5-6.6l-.1-.1Z" fill="url(#rxjxt-shovel-blade)" stroke="#ff8994" stroke-width=".8" stroke-linejoin="round"/><path d="m5.3 15.1 3.2 3.2" stroke="#ffc1c6" stroke-opacity=".72" stroke-width=".8" stroke-linecap="round"/></g><circle class="rxjxt-shovel-dirt rxjxt-shovel-dirt-1" cx="2.2" cy="13.3" r=".8" fill="#ff5365"/><circle class="rxjxt-shovel-dirt rxjxt-shovel-dirt-2" cx="5.8" cy="11.7" r=".65" fill="#ffbac0"/><circle class="rxjxt-shovel-dirt rxjxt-shovel-dirt-3" cx="1.1" cy="17" r=".55" fill="#d8172e"/></svg><img class="rxjxt-shovel-gif" data-src="${SHOVEL_DIG_GIF_URL}" alt=""></span></div>`;
                 toolbar.appendChild(btn);
                 
                 btn.onclick = (e) => {
                     e.preventDefault(); e.stopPropagation();
                     const overlay = document.getElementById('rxjxt-overlay');
-                    if (overlay.classList.contains('rxjxt-open')) overlay._rxjxtCloseModal?.();
+                    const wasOpen = overlay.classList.contains('rxjxt-open');
+                    if (wasOpen) overlay._rxjxtCloseModal?.();
                     else overlay._rxjxtOpenModal?.();
+                    btn.classList.toggle('rxjxt-dashboard-open', !wasOpen);
+                    btn.setAttribute('aria-pressed', String(!wasOpen));
                 };
+                btn.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); btn.click(); } };
             }
 
             let vcBtn = document.getElementById('rxjxt-vc-btn');
             if (toolbar && btn && !vcBtn) {
-                const speakerSVG = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>`;
+                const speakerSVG = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon class="rxjxt-speaker-body" points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path class="rxjxt-speaker-wave rxjxt-speaker-wave-near" d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path class="rxjxt-speaker-wave rxjxt-speaker-wave-far" d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>`;
                 
                 vcBtn = document.createElement('div'); vcBtn.id = 'rxjxt-vc-btn';
-                vcBtn.style.cssText = 'display: flex; align-items: center; justify-content: center; cursor: pointer; width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.05); margin-left: 8px; margin-right: 4px; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); color: rgba(255,255,255,0.7); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1);';
+                vcBtn.style.cssText = 'display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative;';
+                vcBtn.setAttribute('role', 'button');
+                vcBtn.setAttribute('aria-label', 'Connect to voice channel');
+                vcBtn.setAttribute('aria-pressed', 'false');
+                vcBtn.title = 'Connect to voice channel';
+                vcBtn.tabIndex = 0;
                 vcBtn.innerHTML = speakerSVG;
-                
-                vcBtn.onmouseover = () => { vcBtn.style.background = 'rgba(255,255,255,0.15)'; vcBtn.style.color = '#fff'; vcBtn.style.transform = 'scale(1.08)'; };
-                vcBtn.onmouseout = () => { vcBtn.style.background = 'rgba(255,255,255,0.05)'; vcBtn.style.color = 'rgba(255,255,255,0.7)'; vcBtn.style.transform = 'scale(1)'; };
                 
                 vcBtn.onclick = () => {
                     let success = false;
@@ -1512,18 +1727,34 @@ module.exports = class RXJXTQuestDashboard {
                         rxjxtShowToast('Error', 'Deep connection failed. Webpack module hidden.', 'error');
                     }
                 };
+                vcBtn.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); vcBtn.click(); } };
                 
                 toolbar.insertBefore(vcBtn, btn);
             }
 
             if (btn) {
-                const hRing = document.getElementById('rxjxt-header-ring');
-                if (hRing) {
-                    let rCol = window.rxjxtGrindToggle ? (window.rxjxtMode === 'RAGE' ? '#FF453A' : '#30D158') : (window.rxjxtDeafenToggle ? '#FF453A' : '#ffffff40'); 
-                    let pct = window.rxjxtGrindToggle ? window.rxjxtCurrentProg : 100;
-                    hRing.style.backgroundImage = `conic-gradient(${rCol} 0%, ${rCol} ${pct}%, transparent ${pct}%, transparent 100%)`; 
-                    hRing.style.backgroundColor = `rgba(255,255,255,0.05)`;
+                const overlay = document.getElementById('rxjxt-overlay');
+                const isOpen = !!overlay?.classList.contains('rxjxt-open');
+                const progressPct = Math.max(0, Math.min(100, Number(window.rxjxtCurrentProg) || 0));
+                btn.classList.toggle('rxjxt-dashboard-open', isOpen);
+                btn.style.setProperty('--rxjxt-toolbar-progress-angle', `${(3.6 * progressPct).toFixed(1)}deg`);
+                const isGrinding = !!window.rxjxtGrindToggle;
+                const animateShovel = isGrinding && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                btn.classList.toggle('rxjxt-toolbar-active', isGrinding);
+                btn.classList.toggle('rxjxt-shovel-animated', animateShovel);
+                const shovelGif = btn.querySelector('.rxjxt-shovel-gif');
+                if (shovelGif) {
+                    if (animateShovel && shovelGif.getAttribute('src') !== shovelGif.dataset.src) shovelGif.setAttribute('src', shovelGif.dataset.src);
+                    else if (!animateShovel && shovelGif.hasAttribute('src')) shovelGif.removeAttribute('src');
                 }
+                btn.setAttribute('aria-pressed', String(isOpen));
+            }
+            if (vcBtn) {
+                const connected = rxjxtIsConnectedToVC();
+                vcBtn.classList.toggle('rxjxt-vc-connected', connected);
+                vcBtn.setAttribute('aria-label', connected ? 'Connected to voice channel' : 'Connect to voice channel');
+                vcBtn.setAttribute('aria-pressed', String(connected));
+                vcBtn.title = connected ? 'Connected to voice channel' : 'Connect to voice channel';
             }
         };
         window.rxjxtToolbarInterval = setInterval(rxjxtEnsureIcon, 1000);
@@ -1541,5 +1772,7 @@ module.exports = class RXJXTQuestDashboard {
         const style = document.getElementById('rxjxt-styles'); if (style) style.remove();
     }
 };
+
+
 
 
